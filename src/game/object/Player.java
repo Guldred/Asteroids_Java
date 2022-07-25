@@ -1,6 +1,5 @@
 package game.object;
 
-import game.component.DeltaTimer;
 import game.component.InputEventTypes;
 import game.component.PlayerInput;
 import game.component.Vector2;
@@ -13,12 +12,10 @@ import javax.swing.JComponent;
 public class Player extends JComponent {
     public static final double PLAYER_DIMENSIONS = 64;
     private final float MAX_SPEED = 1;
-    private float speed = 0f;
     private Vector2 velocity = new Vector2(0, 0);
-    private boolean accForward;
     private float angle = 0f;
     private Point position;
-    private final Image image;
+    private final Image playerImage;
     private final Image image_speed;
     PlayerInput playerInput;
     JFrame window;
@@ -26,7 +23,7 @@ public class Player extends JComponent {
 
     public Player(JFrame window) {
         this.window = window;
-        this.image = new ImageIcon("src/game/resource/img/spaceship_brown_default_turned.png").getImage();
+        this.playerImage = new ImageIcon("src/game/resource/img/spaceship_brown_default_turned.png").getImage();
         this.image_speed = new ImageIcon("src/game/resource/img/plane_speed.png").getImage();
 
         initInput();
@@ -93,7 +90,7 @@ public class Player extends JComponent {
         g2.translate(position.x, position.y);
         AffineTransform t = new AffineTransform();
         t.rotate(Math.toRadians(angle), PLAYER_DIMENSIONS / 2, PLAYER_DIMENSIONS / 2);
-        g2.drawImage(image, t, null);
+        g2.drawImage(playerImage, t, null);
         //g2.drawImage(accForward ? accelImage : image, t, null);
         g2.setTransform(oldTransform);
     }
@@ -132,8 +129,6 @@ public class Player extends JComponent {
     }
 
     public void accelerate(float direction, float deltaTime) {
-        //System.out.println("delta: " + deltaTime);
-        accForward = true;
         velocity.x += Math.cos(Math.toRadians(angle + direction)) * deltaTime/10 * 1;
         velocity.y += Math.sin(Math.toRadians(angle + direction)) * deltaTime/10 * 1;
     }
