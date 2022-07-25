@@ -154,12 +154,11 @@ public class GameCore extends JComponent {
 
         new Thread(() -> {
             float s = 1f;
-            float angle = 0;
             float frameTime = 0;
             float lastFrameTime = 0;
             float inputFactor = 0;
-            Point playerPos = new Point(0, 0);
-            Point mousePos = new Point(0, 0);
+            Point playerPos;
+            Point mousePos;
 
             while (start) {
                 lastFrameTime = frameTime;
@@ -170,10 +169,11 @@ public class GameCore extends JComponent {
 
                 mousePos = playerInput.getMousePositionInGame(window);
 
-                angle = getAngle(playerPos, mousePos);
+                //player.setPosition(250, 250);
+                player.setAngle(calcAngleFromPoints(playerPos, mousePos));
 
-                System.out.println("Angle: " + angle + " PlayerPos: " + playerPos + " MousePos: " + mousePos);
-                player.setAngle(angle);
+                System.out.println("PlayerPos: " + playerPos.x + "/" + playerPos.y + " MousePos: " + mousePos.x + "/" + mousePos.y);
+
                 sleep(10);
             }
         }).start();
@@ -181,7 +181,7 @@ public class GameCore extends JComponent {
 
     }
 
-    public float getAngle(Point player, Point target) {
+    public float calcAngleFromPoints(Point player, Point target) {
         float angle = (float) Math.toDegrees(Math.atan2(target.y - player.y, target.x - player.x));
 
         if(angle < 0){
@@ -193,7 +193,7 @@ public class GameCore extends JComponent {
 
     private void initGameObjects() {
         player = new Player();
-        //player.updateLocation(150, 150);
+        player.setPosition(new Point(100, 100));
     }
 
 

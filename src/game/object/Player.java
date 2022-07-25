@@ -7,15 +7,14 @@ import javax.swing.JComponent;
 
 public class Player extends JComponent {
     public static final double PLAYER_SIZE = 64;
-    private double x;
-    private double y;
+    private Point position;
     private float angle = 0f;
     private final Image image;
     private final Image image_speed;
 
 
     public Player() {
-        this.image = new ImageIcon("src/game/resource/img/spaceship_brown_default.png").getImage();
+        this.image = new ImageIcon("src/game/resource/img/spaceship_brown_default_turned.png").getImage();
         this.image_speed = new ImageIcon("src/game/resource/img/plane_speed.png").getImage();
     }
 
@@ -26,28 +25,27 @@ public class Player extends JComponent {
 
     public void draw(Graphics2D g2) {
         AffineTransform oldTransform = g2.getTransform();
-        g2.translate(x, y);
+        g2.translate(position.x, position.y);
         AffineTransform t = g2.getTransform();
-        t.rotate(Math.toRadians(angle+90), PLAYER_SIZE / 2, PLAYER_SIZE / 2);
+        t.rotate(Math.toRadians(angle), PLAYER_SIZE / 2, PLAYER_SIZE / 2);
         g2.drawImage(image, t, null);
         g2.setTransform(oldTransform);
     }
 
     public Point getPos() {
-        return new Point((int)x, (int)y);
+        return position;
     }
 
     public Point getCenter() {
-        return new Point( (int) (x + PLAYER_SIZE / 2), (int)(y + PLAYER_SIZE / 2));
+        return new Point( (int) (position.x + PLAYER_SIZE / 2), (int)(position.y + PLAYER_SIZE / 2));
     }
 
     public float getAngle() {
         return angle;
     }
 
-    public void updateLocation(double x, double y) {
-        this.x = x;
-        this.y = y;
+    public void setPosition(Point pos) {
+        this.position = pos;
     }
 
     public void setAngle(float angle) {
