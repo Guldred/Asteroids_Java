@@ -2,7 +2,7 @@ package game.component;
 
 import game.object.Player;
 
-import javax.swing.JComponent;
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -10,6 +10,7 @@ import java.awt.image.BufferedImage;
 
 public class GameCore extends JComponent {
 
+    private JFrame window;
     private Graphics2D g2;
     private BufferedImage image;
 
@@ -25,6 +26,10 @@ public class GameCore extends JComponent {
 
     // Game Objects
     private Player player;
+
+    public GameCore(JFrame window) {
+        this.window = window;
+    }
 
     public void start() {
         width = getWidth();
@@ -121,6 +126,7 @@ public class GameCore extends JComponent {
                 }
             }
         });
+        /*
         new Thread(() -> {
             float s = 1f;
             float angle = 0;
@@ -144,12 +150,50 @@ public class GameCore extends JComponent {
             }
         }).start();
 
+         */
 
+        new Thread(() -> {
+            float s = 1f;
+            float angle = 0;
+            float frameTime = 0;
+            float lastFrameTime = 0;
+            float inputFactor = 0;
+            Point playerPos = new Point(0, 0);
+            Point mousePos = new Point(0, 0);
+
+            while (start) {
+                lastFrameTime = frameTime;
+                frameTime = System.nanoTime();
+                inputFactor = (frameTime - lastFrameTime) / 10000000f;
+
+                playerPos = player.getCenter();
+
+                mousePos = playerInput.getMousePositionInGame(window);
+
+                angle = getAngle(playerPos, mousePos);
+
+                System.out.println("Angle: " + angle + " PlayerPos: " + playerPos + " MousePos: " + mousePos);
+                player.setAngle(angle);
+                sleep(10);
+            }
+        }).start();
+
+
+    }
+
+    public float getAngle(Point player, Point target) {
+        float angle = (float) Math.toDegrees(Math.atan2(target.y - player.y, target.x - player.x));
+
+        if(angle < 0){
+            angle += 360;
+        }
+
+        return angle;
     }
 
     private void initGameObjects() {
         player = new Player();
-        player.updateLocation(150, 150);
+        //player.updateLocation(150, 150);
     }
 
 

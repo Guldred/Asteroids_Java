@@ -21,7 +21,7 @@ public class Main extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        GameCore gameCore = new GameCore();
+        GameCore gameCore = new GameCore(this);
         add(gameCore);
         addWindowListener(new WindowAdapter() {
             @Override

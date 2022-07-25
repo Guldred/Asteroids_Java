@@ -1,5 +1,10 @@
 package game.component;
 
+import javax.swing.*;
+import java.awt.*;
+
+
+
 public class PlayerInput {
     private boolean key_right;
     private boolean key_left;
@@ -46,6 +51,12 @@ public class PlayerInput {
 
     public void setKey_space(boolean key_space) {
         this.key_space = key_space;
+    }
+
+
+
+    public Point getMousePositionInGame(JFrame window) {
+        return new Point (MouseInfo.getPointerInfo().getLocation().x - window.getLocationOnScreen().x, MouseInfo.getPointerInfo().getLocation().y - window.getLocationOnScreen().y - 30);
     }
 
 

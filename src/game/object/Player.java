@@ -1,11 +1,7 @@
 package game.object;
 
-import game.component.PlayerInput;
-
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.awt.geom.AffineTransform;
 import javax.swing.JComponent;
 
@@ -19,7 +15,7 @@ public class Player extends JComponent {
 
 
     public Player() {
-        this.image = new ImageIcon("src/game/resource/img/plane.png").getImage();
+        this.image = new ImageIcon("src/game/resource/img/spaceship_brown_default.png").getImage();
         this.image_speed = new ImageIcon("src/game/resource/img/plane_speed.png").getImage();
     }
 
@@ -32,17 +28,17 @@ public class Player extends JComponent {
         AffineTransform oldTransform = g2.getTransform();
         g2.translate(x, y);
         AffineTransform t = g2.getTransform();
-        t.rotate(Math.toRadians(angle+45), PLAYER_SIZE / 2, PLAYER_SIZE / 2);
+        t.rotate(Math.toRadians(angle+90), PLAYER_SIZE / 2, PLAYER_SIZE / 2);
         g2.drawImage(image, t, null);
         g2.setTransform(oldTransform);
     }
 
-    public double getPosX() {
-        return x;
+    public Point getPos() {
+        return new Point((int)x, (int)y);
     }
 
-    public double getPosY() {
-        return y;
+    public Point getCenter() {
+        return new Point( (int) (x + PLAYER_SIZE / 2), (int)(y + PLAYER_SIZE / 2));
     }
 
     public float getAngle() {
