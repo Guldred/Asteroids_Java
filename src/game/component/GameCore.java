@@ -153,28 +153,19 @@ public class GameCore extends JComponent {
          */
 
         new Thread(() -> {
-            float s = 1f;
-            float frameTime = 0;
-            float lastFrameTime = 0;
-            float inputFactor = 0;
+            DeltaTimer deltaTimer = new DeltaTimer();
+            long frame = 0;
             Point playerPos;
             Point mousePos;
 
+
             while (start) {
-                lastFrameTime = frameTime;
-                frameTime = System.nanoTime();
-                inputFactor = (frameTime - lastFrameTime) / 10000000f;
-
+                frame++;
                 playerPos = player.getCenter();
-
                 mousePos = playerInput.getMousePositionInGame(window);
 
-                //player.setPosition(250, 250);
                 player.setAngle(calcAngleFromPoints(playerPos, mousePos));
-
-                System.out.println("PlayerPos: " + playerPos.x + "/" + playerPos.y + " MousePos: " + mousePos.x + "/" + mousePos.y);
-
-                sleep(10);
+                sleep(16);
             }
         }).start();
 

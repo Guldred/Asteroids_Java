@@ -6,7 +6,7 @@ import java.awt.geom.AffineTransform;
 import javax.swing.JComponent;
 
 public class Player extends JComponent {
-    public static final double PLAYER_SIZE = 64;
+    public static final double PLAYER_DIMENSIONS = 64;
     private Point position;
     private float angle = 0f;
     private final Image image;
@@ -27,7 +27,7 @@ public class Player extends JComponent {
         AffineTransform oldTransform = g2.getTransform();
         g2.translate(position.x, position.y);
         AffineTransform t = g2.getTransform();
-        t.rotate(Math.toRadians(angle), PLAYER_SIZE / 2, PLAYER_SIZE / 2);
+        t.rotate(Math.toRadians(angle), PLAYER_DIMENSIONS / 2, PLAYER_DIMENSIONS / 2);
         g2.drawImage(image, t, null);
         g2.setTransform(oldTransform);
     }
@@ -37,7 +37,7 @@ public class Player extends JComponent {
     }
 
     public Point getCenter() {
-        return new Point( (int) (position.x + PLAYER_SIZE / 2), (int)(position.y + PLAYER_SIZE / 2));
+        return new Point( (int) (position.x + PLAYER_DIMENSIONS / 2), (int)(position.y + PLAYER_DIMENSIONS / 2));
     }
 
     public float getAngle() {
