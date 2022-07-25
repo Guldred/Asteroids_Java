@@ -15,7 +15,7 @@ public class Main extends JFrame {
 
     private void init() {
         setTitle("Java Asteroids Game");
-        setSize(800, 600);
+        setSize(1920, 1080);
         setLocationRelativeTo(null);
         setResizable(false);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

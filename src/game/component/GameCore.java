@@ -18,7 +18,6 @@ public class GameCore extends JComponent {
     private int height;
     private Thread thread;
     private boolean start = true;
-    private PlayerInput playerInput;
 
     // Game Fps
     private final int FPS = 60;
@@ -26,18 +25,19 @@ public class GameCore extends JComponent {
 
     // Game Objects
     private Player player;
+    private PlayerInput playerInput;
 
-    public GameCore(JFrame window) {
-        this.window = window;
-    }
+    public GameCore(JFrame window) { this.window = window;}
 
     public void start() {
         width = getWidth();
         height = getHeight();
 
+
         initGFX();
         initGameObjects();
         initInput();
+
 
         thread = new Thread(() -> {
             long frameStartTime = 0;
@@ -91,108 +91,34 @@ public class GameCore extends JComponent {
     }
 
     private void initInput() {
-
-        playerInput = new PlayerInput();
-
+        //Capture Inputs and send them to player (TODO: make this Observer Pattern)
         requestFocus();
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-                    playerInput.setKey_left(true);
-                } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-                    playerInput.setKey_right(true);
-                } else if (e.getKeyCode() == KeyEvent.VK_UP) {
-                    playerInput.setKey_up(true);
-                } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-                    playerInput.setKey_down(true);
-                } else if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-                    playerInput.setKey_space(true);
-                }
+                inputListenerEvent(InputEventTypes.KEY_PRESSED, e.getKeyCode());
             }
 
             @Override
             public void keyReleased(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-                    playerInput.setKey_left(false);
-                } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-                    playerInput.setKey_right(false);
-                } else if (e.getKeyCode() == KeyEvent.VK_UP) {
-                    playerInput.setKey_up(false);
-                } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-                    playerInput.setKey_down(false);
-                } else if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-                    playerInput.setKey_space(false);
-                }
+                inputListenerEvent(InputEventTypes.KEY_RELEASED, e.getKeyCode());
             }
         });
-        /*
-        new Thread(() -> {
-            float s = 1f;
-            float angle = 0;
-            float frameTime = 0;
-            float lastFrameTime = 0;
-            float inputFactor = 0;
-            while (start) {
-                lastFrameTime = frameTime;
-                frameTime = System.nanoTime();
-                inputFactor = (frameTime - lastFrameTime) / 10000000f;
-                angle = player.getAngle();
-
-                System.out.println("Factor: " + inputFactor);
-                if (playerInput.isKey_left()) {
-                    angle -= s * inputFactor;
-                } else if (playerInput.isKey_right()) {
-                    angle += s * inputFactor;
-                }
-                player.setAngle(angle);
-                sleep(10);
-            }
-        }).start();
-
-         */
-
-        new Thread(() -> {
-            DeltaTimer deltaTimer = new DeltaTimer();
-            long frame = 0;
-            Point playerPos;
-            Point mousePos;
-
-
-            while (start) {
-                frame++;
-                playerPos = player.getCenter();
-                mousePos = playerInput.getMousePositionInGame(window);
-
-                player.setAngle(calcAngleFromPoints(playerPos, mousePos));
-                sleep(16);
-            }
-        }).start();
-
-
     }
 
-    public float calcAngleFromPoints(Point player, Point target) {
-        float angle = (float) Math.toDegrees(Math.atan2(target.y - player.y, target.x - player.x));
-
-        if(angle < 0){
-            angle += 360;
-        }
-
-        return angle;
+    public void inputListenerEvent(InputEventTypes eventType, int keyCode) {
+        player.inputUpdate(eventType, keyCode);
     }
+
+
 
     private void initGameObjects() {
-        player = new Player();
+        player = new Player(window);
         player.setPosition(new Point(100, 100));
     }
 
 
-
-
-
     private void sleep(long t) {
-        //System.out.println("Sleeping for " + t + " ms");
         try {
             Thread.sleep(t);
         } catch (InterruptedException e) {
