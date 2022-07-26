@@ -13,7 +13,8 @@ public class Player extends JComponent {
     public static final double PLAYER_DIMENSIONS = 64;
     private final float MAX_SPEED = 1;
     private Vector2 velocity = new Vector2(0, 0);
-    private float angle = 0f;
+    private float playerViewAngle = 0f;
+    private boolean start = true;
     private Point position;
     private final Image playerImage;
     private final Image image_speed;
@@ -35,45 +36,47 @@ public class Player extends JComponent {
 
 
         new Thread(() -> {
-            long lastFrameTime = 0;
+            long sleepTime = 0;
             long frameTime = 0;
+            float frameRenderTime = 0;
             float deltaTime = 0;
+            long targetTime = 1000 / 60;
 
 
 
-            while (true) {
-                lastFrameTime = frameTime;
+            while (start) {
+                deltaTime = (System.nanoTime() - frameTime) / 10000000f;
                 frameTime = System.nanoTime();
-                deltaTime = (float)(frameTime - lastFrameTime) / 10000000f;
 
+                getInput(deltaTime);
                 update();
                 turnToCursor();
 
-
-                if (playerInput.isKey_up()) {
-                    accelerate(0, deltaTime);
-                }
-                if (playerInput.isKey_right()) {
-                    accelerate(60, deltaTime);
-                }
-                if (playerInput.isKey_down()) {
-                    accelerate(180, deltaTime);
-                }
-                if (playerInput.isKey_left()) {
-                    accelerate(300, deltaTime);
-                }
-
-
-                sleep(10);
+                frameRenderTime = (float)(System.nanoTime() - frameTime) / 1000000;
+                sleepTime = (frameRenderTime < targetTime) ? (long) (targetTime - frameRenderTime) : 0;
+                sleep(sleepTime);
             }
         }).start();
 
 
     }
 
+    private void getInput(float deltaTime) {
+        if (playerInput.isKey_up()) {
+            accelerate(0, deltaTime);
+        }
+        if (playerInput.isKey_right()) {
+            accelerate(60, deltaTime);
+        }
+        if (playerInput.isKey_down()) {
+            accelerate(180, deltaTime);
+        }
+        if (playerInput.isKey_left()) {
+            accelerate(300, deltaTime);
+        }
+    }
 
-
-    public void inputUpdate(InputEventTypes eventType, int keyCode) {
+    public void setInputToMap(InputEventTypes eventType, int keyCode) {
         playerInput.keyPressUpdate(eventType, keyCode);
     }
 
@@ -89,7 +92,7 @@ public class Player extends JComponent {
         AffineTransform oldTransform = g2.getTransform();
         g2.translate(position.x, position.y);
         AffineTransform t = new AffineTransform();
-        t.rotate(Math.toRadians(angle), PLAYER_DIMENSIONS / 2, PLAYER_DIMENSIONS / 2);
+        t.rotate(Math.toRadians(playerViewAngle), PLAYER_DIMENSIONS / 2, PLAYER_DIMENSIONS / 2);
         g2.drawImage(playerImage, t, null);
         //g2.drawImage(accForward ? accelImage : image, t, null);
         g2.setTransform(oldTransform);
@@ -104,15 +107,15 @@ public class Player extends JComponent {
     }
 
     public float getAngle() {
-        return angle;
+        return playerViewAngle;
     }
 
     public void setPosition(Point pos) {
         this.position = pos;
     }
 
-    public void setAngle(float angle) {
-        this.angle = angle;
+    public void setAngle(float playerViewAngle) {
+        this.playerViewAngle = playerViewAngle;
     }
 
     public void turnToCursor() {
@@ -128,9 +131,9 @@ public class Player extends JComponent {
         return angle;
     }
 
-    public void accelerate(float direction, float deltaTime) {
-        velocity.x += Math.cos(Math.toRadians(angle + direction)) * deltaTime/10 * 1;
-        velocity.y += Math.sin(Math.toRadians(angle + direction)) * deltaTime/10 * 1;
+    public void accelerate(float inputDirection, float deltaTime) {
+        float force = deltaTime/10 * 1;
+        velocity.addForce(playerViewAngle + inputDirection, force);
     }
 
     public void update() {

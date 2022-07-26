@@ -20,7 +20,7 @@ public class GameCore extends JComponent {
     private boolean start = true;
 
     // Game Fps
-    private final int FPS = 60;
+    private final int FPS = 67;
     private final int TARGET_TIME = 1000000000 / FPS;
 
     // Game Objects
@@ -49,6 +49,7 @@ public class GameCore extends JComponent {
                 if (frameRenderTime < TARGET_TIME) {
                     sleep((TARGET_TIME - frameRenderTime) / 1000000);
                 }
+
             }
         });
         thread.start();
@@ -107,7 +108,7 @@ public class GameCore extends JComponent {
     }
 
     public void inputListenerEvent(InputEventTypes eventType, int keyCode) {
-        player.inputUpdate(eventType, keyCode);
+        player.setInputToMap(eventType, keyCode);
     }
 
 

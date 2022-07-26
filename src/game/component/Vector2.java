@@ -54,113 +54,83 @@ public class Vector2
 
     public Vector2 add(float x, float y)
     {
-        //Adds the x and y values passed in to the vector's x and y components.
         this.x += x;
         this.y += y;
 
-        //Returns a reference to this Vector2.
         return this;
     }
 
-    /** Adds a vector to this vector. Done by adding the x and y components of the other vector to this vector. Returns the instance of this vector for use in operation chaining. */
+
     public Vector2 add(Vector2 other)
     {
-        //Adds the x and y components of the other vector to this vector.
         this.x += other.x;
         this.y += other.y;
 
-        //Returns a reference to this Vector2.
         return this;
     }
 
-    /** Subtracts the given amount from the x and y components of this Vector. Returns a reference of this vector to use in method chaining for multiple operations. */
+
     public Vector2 sub (float amount)
     {
-        //Subtracts the given amount from the vector's x and y components.
         this.x -= amount;
         this.y -= amount;
 
-        //Returns a reference to this Vector2.
         return this;
     }
 
-    /** Subtracts the x and y arguments from the x and y components of this Vector. Returns a reference of this vector to use in method chaining for multiple operations. */
     public Vector2 sub(float x, float y)
     {
-        //Subtracts the x and y arguments from this vector's x and y components.
         this.x -= x;
         this.y -= y;
 
-        //Returns a reference to this Vector2.
         return this;
     }
 
-    /** Adds a vector form this vector. Done by subtracting the x and y components of the other vector from this vector's x and y components. Returns the instance of this vector
-     *  for use in operation chaining. */
+
     public Vector2 sub(Vector2 other)
     {
-        //Takes this vector's x and y components, and subtracts them by the other vector's x and y components.
         this.x -= other.x;
         this.y -= other.y;
 
-        //Returns a reference to this Vector2 for use in operation chaining via method chaining.
         return this;
     }
 
-    /** Multiplies this vector by a scalar. Done by multiplying the x and y components of this vector by the given argument. Returns the instance of this vector for use in
-     *  operation chaining. */
     public Vector2 mul(float scalar)
     {
-        //Multiplies the x and y components of this vector by the scalar argument.
         this.x *= scalar;
         this.y *= scalar;
 
-        //Returns a reference to this Vector2 for use in operation chaining via method chaining.
         return this;
     }
 
-    /** Returns the magnitude of this vector. */
     public float magnitude()
     {
-        //Returns the magnitude of the vector via the pythagorean theorem (i.e., sqrt(x*x + y*y)). Note that the FloatMath.sqrt() method is faster than the Math.sqrt() method.
         return (float)Math.sqrt(x*x + y*y);
     }
 
-    /** Normalizes the vector. This means that we convert this vector into a unit vector with magnitude one. We return a reference to the normalized vector for use in chaining
-     *  operations via chained method calls. */
     public Vector2 normalize()
     {
-        //Stores the magnitude of the vector.
         float magnitude = magnitude();
 
-        //If the magnitude is not zero, normalize the vector. Otherwise, the vector is zero and does not need normalizing. Prevents an ArithmeticException.
         if(magnitude != 0)
         {
-            //Normalizes the vector by dividing its x and y components by its magnitude.
             this.x /= magnitude;
             this.y /= magnitude;
         }
 
-        //Returns a reference to this Vector2 for use in operation chaining via method chaining.
         return this;
     }
 
-    /** Returns the angle formed by the vector, counterclockwise from the +x axis. Angle is in degrees, ranging from 0 to 360. */
     public float angle()
     {
-        //Finds the angle formed by the vector. We do this by finding the arctangent of (y/x). In this case, we pass the y component as the first argument and the x component
-        //as the second argument. The returned angle is in radians. We convert it to degrees.
+
         float angle = (float) Math.atan2(y, x) * TO_DEGREES;
 
-        //The angle returned by the arctangent method is between -180 and 180. Thus, if the angle is negative, we add 360 degrees to the angle. This makes it so that there
-        //are no negative angles. The angles will range from 0 to 360, counterclockwise from the +x axis.
         if(angle < 0)
         {
-            //Adds 360 degrees to the negative angle to prevent a negative angle.
             angle += 360;
         }
 
-        //Returns the angle formed by the vector.
         return angle;
     }
 
@@ -214,6 +184,11 @@ public class Vector2
         //Returns the distance square between both vectors. This is done via the pythagorean theorem, using sqrt(x*x + y*y). However, we return the distance squared
         //by avoiding the square root. This is cost-efficient.
         return distX*distX + distY*distY;
+    }
+
+    public void addForce(float direction, float force) {
+        this.x += Math.cos(Math.toRadians(direction)) * force;
+        this.y += Math.sin(Math.toRadians(direction)) * force;
     }
 
     public String toString()
