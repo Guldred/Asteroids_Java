@@ -2,64 +2,45 @@ package game.object;
 
 import game.component.InputEventTypes;
 import game.component.PlayerInput;
+import game.component.Updateable;
 import game.component.Vector2;
+import game.object.projectiles.*;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
-import javax.swing.JComponent;
 
-public class Player extends JComponent {
+public class Player extends Updateable {
     public static final double PLAYER_DIMENSIONS = 64;
     private final float MAX_SPEED = 1;
     private Vector2 velocity = new Vector2(0, 0);
     private float playerViewAngle = 0f;
     private boolean start = true;
-    private Point position;
+    private Vector2 position;
     private final Image playerImage;
-    private final Image image_speed;
     PlayerInput playerInput;
     JFrame window;
 
 
+
     public Player(JFrame window) {
+        super();
         this.window = window;
         this.playerImage = new ImageIcon("src/game/resource/img/spaceship_brown_default_turned.png").getImage();
-        this.image_speed = new ImageIcon("src/game/resource/img/plane_speed.png").getImage();
+        this.playerInput = new PlayerInput();
 
-        initInput();
+        super.startUpdate();
     }
 
-    private void initInput() {
 
-        playerInput = new PlayerInput();
-
-
-        new Thread(() -> {
-            long sleepTime = 0;
-            long frameTime = 0;
-            float frameRenderTime = 0;
-            float deltaTime = 0;
-            long targetTime = 1000 / 60;
-
-
-
-            while (start) {
-                deltaTime = (System.nanoTime() - frameTime) / 10000000f;
-                frameTime = System.nanoTime();
-
-                getInput(deltaTime);
-                update();
-                turnToCursor();
-
-                frameRenderTime = (float)(System.nanoTime() - frameTime) / 1000000;
-                sleepTime = (frameRenderTime < targetTime) ? (long) (targetTime - frameRenderTime) : 0;
-                sleep(sleepTime);
-            }
-        }).start();
-
-
+    @Override
+    public void onUpdate(float deltaTime) {
+        this.getInput(deltaTime);
+        this.updatePos(deltaTime);
+        this.turnToCursor();
     }
+
+
 
     private void getInput(float deltaTime) {
         if (playerInput.isKey_up()) {
@@ -98,19 +79,19 @@ public class Player extends JComponent {
         g2.setTransform(oldTransform);
     }
 
-    public Point getPos() {
+    public Vector2 getPos() {
         return position;
     }
 
-    public Point getCenter() {
-        return new Point( (int) (position.x + PLAYER_DIMENSIONS / 2), (int)(position.y + PLAYER_DIMENSIONS / 2));
+    public Vector2 getCenter() {
+        return new Vector2( (float) (position.x + PLAYER_DIMENSIONS / 2), (float)(position.y + PLAYER_DIMENSIONS / 2));
     }
 
     public float getAngle() {
         return playerViewAngle;
     }
 
-    public void setPosition(Point pos) {
+    public void setPosition(Vector2 pos) {
         this.position = pos;
     }
 
@@ -122,7 +103,7 @@ public class Player extends JComponent {
         setAngle(calcAngleFromPoints(getCenter(), playerInput.getMousePositionInGame(window)));
     }
 
-    public float calcAngleFromPoints(Point player, Point target) {
+    public float calcAngleFromPoints(Vector2 player, Vector2 target) {
         float angle = (float) Math.toDegrees(Math.atan2(target.y - player.y, target.x - player.x));
 
         if(angle < 0){
@@ -136,8 +117,12 @@ public class Player extends JComponent {
         velocity.addForce(playerViewAngle + inputDirection, force);
     }
 
-    public void update() {
-        position.x += velocity.x;
-        position.y += velocity.y;
+    public void updatePos(float deltaTime) {
+        position.x += velocity.x * deltaTime;
+        position.y += velocity.y * deltaTime;
+    }
+
+    public Projectile shoot(int weapon) {
+        return new EnergyBall(getCenter(), velocity, this.playerViewAngle, 10f);
     }
 }

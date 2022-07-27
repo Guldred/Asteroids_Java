@@ -8,7 +8,7 @@ import java.util.HashMap;
 
 public class PlayerInput {
 
-    HashMap<String, Boolean> keys = new HashMap<String, Boolean>();
+    HashMap<String, Boolean> keys = new HashMap<>();
 
     public PlayerInput() {
         keys.put("key_right", false);
@@ -16,6 +16,10 @@ public class PlayerInput {
         keys.put("key_up", false);
         keys.put("key_down", false);
         keys.put("key_space", false);
+        //Add mouse input
+        keys.put("mouse_left", false);
+        keys.put("mouse_right", false);
+
     }
 
 
@@ -59,10 +63,16 @@ public class PlayerInput {
         this.keys.put("key_space", key_space);
     }
 
+    public boolean isMouse_left() { return keys.get("mouse_left"); }
+    public void setMouse_left(boolean mouse_left) { this.keys.put("mouse_left", mouse_left); }
+    public boolean isMouse_right() { return keys.get("mouse_right"); }
+    public void setMouse_right(boolean mouse_right) { this.keys.put("mouse_right", mouse_right); }
 
 
-    public Point getMousePositionInGame(JFrame window) {
-        return new Point (
+
+
+    public Vector2 getMousePositionInGame(JFrame window) {
+        return new Vector2 (
                 MouseInfo.getPointerInfo().getLocation().x - window.getLocationOnScreen().x,
                 MouseInfo.getPointerInfo().getLocation().y - window.getLocationOnScreen().y - 30
         ); //-30 accounts for the title bar
@@ -93,8 +103,11 @@ public class PlayerInput {
             } else if (keyCode == KeyEvent.VK_SPACE) {
                 setKey_space(false);
             }
+        } else if (eventType == InputEventTypes.MOUSE_PRESSED) {
+            System.out.println("Mouse pressed. Button: " + keyCode);
+        } else if(eventType == InputEventTypes.MOUSE_RELEASED) {
+            System.out.println("Mouse released. Button: " + keyCode);
         }
     }
-
 
 }

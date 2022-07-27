@@ -1,14 +1,16 @@
 package game.component;
 
 import game.object.Player;
+import game.object.projectiles.Projectile;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
 
-public class GameCore extends JComponent {
+public class GameCore extends JComponent{
 
     private JFrame window;
     private Graphics2D g2;
@@ -19,6 +21,8 @@ public class GameCore extends JComponent {
     private Thread thread;
     private boolean start = true;
 
+    private List<Projectile> projectiles;
+
     // Game Fps
     private final int FPS = 67;
     private final int TARGET_TIME = 1000000000 / FPS;
@@ -27,7 +31,9 @@ public class GameCore extends JComponent {
     private Player player;
     private PlayerInput playerInput;
 
-    public GameCore(JFrame window) { this.window = window;}
+    public GameCore(JFrame window) {
+        this.window = window;
+    }
 
     public void start() {
         width = getWidth();
@@ -37,6 +43,8 @@ public class GameCore extends JComponent {
         initGFX();
         initGameObjects();
         initInput();
+        initProjectiles();
+
 
 
         thread = new Thread(() -> {
@@ -75,6 +83,12 @@ public class GameCore extends JComponent {
 
     private void drawGame() {
         player.draw(g2);
+        for (int i = 0; i < projectiles.size(); i++) {
+            if (projectiles.get(i) != null) {
+                projectiles.get(i).draw(g2);
+            }
+        }
+
     }
 
     private void drawUI() {
@@ -96,13 +110,23 @@ public class GameCore extends JComponent {
         requestFocus();
         addKeyListener(new KeyAdapter() {
             @Override
-            public void keyPressed(KeyEvent e) {
-                inputListenerEvent(InputEventTypes.KEY_PRESSED, e.getKeyCode());
-            }
+            public void keyPressed(KeyEvent e) { inputListenerEvent(InputEventTypes.KEY_PRESSED, e.getKeyCode());}
 
             @Override
             public void keyReleased(KeyEvent e) {
                 inputListenerEvent(InputEventTypes.KEY_RELEASED, e.getKeyCode());
+            }
+
+        });
+
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                playerShoot(1);
+            }
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                //playerShoot(2);
             }
         });
     }
@@ -115,7 +139,43 @@ public class GameCore extends JComponent {
 
     private void initGameObjects() {
         player = new Player(window);
-        player.setPosition(new Point(100, 100));
+        player.setPosition(new Vector2(100, 100));
+    }
+
+    private void initProjectiles() {
+        projectiles = new ArrayList<>();
+
+        new Thread(() -> {
+            long frameStartTime = 0;
+            long frameRenderTime = 0;
+            while (start) {
+                frameStartTime = System.nanoTime();
+
+                //use update on all projectiles
+
+                for (int i = 0; i < projectiles.size(); i++) {
+                    if (projectiles.get(i) != null) {
+                        //projectiles.get(i).Update();
+                        if (projectiles.get(i).outOfBounds(width, height)) {
+                            projectiles.get(i).stop();
+                            projectiles.remove(projectiles.get(i));
+                        }
+                    } else {
+                        projectiles.remove(projectiles.get(i));
+                    }
+                }
+
+                frameRenderTime = System.nanoTime() - frameStartTime;
+                if (frameRenderTime < TARGET_TIME) {
+                    sleep((TARGET_TIME - frameRenderTime) / 1000000);
+                }
+
+            }
+        }).start();
+    }
+
+    public void playerShoot(int weapon) {
+        projectiles.add(player.shoot(weapon));
     }
 
 
@@ -126,4 +186,5 @@ public class GameCore extends JComponent {
             System.err.println("Thread interrupted: " + e.getMessage());
         }
     }
+
 }

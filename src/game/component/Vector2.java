@@ -121,7 +121,7 @@ public class Vector2
         return this;
     }
 
-    public float angle()
+    public float getAngle()
     {
 
         float angle = (float) Math.atan2(y, x) * TO_DEGREES;
