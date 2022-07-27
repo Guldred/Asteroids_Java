@@ -1,5 +1,6 @@
 package game.component;
 
+import game.object.Asteroid;
 import game.object.Player;
 import game.object.projectiles.Projectile;
 
@@ -22,6 +23,9 @@ public class GameCore extends JComponent{
     private boolean start = true;
 
     private List<Projectile> projectiles;
+    private List<Asteroid> asteroids;
+
+    public static Vector2 screenSize;
 
     // Game Fps
     private final int FPS = 67;
@@ -33,6 +37,7 @@ public class GameCore extends JComponent{
 
     public GameCore(JFrame window) {
         this.window = window;
+        screenSize = new Vector2(1920, 1080);
     }
 
     public void start() {
@@ -88,6 +93,11 @@ public class GameCore extends JComponent{
                 projectiles.get(i).draw(g2);
             }
         }
+        for (int i = 0; i < asteroids.size(); i++) {
+            if (asteroids.get(i) != null) {
+                asteroids.get(i).draw(g2);
+            }
+        }
 
     }
 
@@ -140,6 +150,8 @@ public class GameCore extends JComponent{
     private void initGameObjects() {
         player = new Player(window);
         player.setPosition(new Vector2(100, 100));
+        asteroids = new ArrayList<>();
+        asteroids.add(new Asteroid(new Vector2(100, 100), new Vector2(3, 2), 64));
     }
 
     private void initProjectiles() {

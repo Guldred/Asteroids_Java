@@ -1,9 +1,6 @@
 package game.object;
 
-import game.component.InputEventTypes;
-import game.component.PlayerInput;
-import game.component.Updateable;
-import game.component.Vector2;
+import game.component.*;
 import game.object.projectiles.*;
 
 import javax.swing.*;
@@ -18,6 +15,7 @@ public class Player extends Updateable {
     private boolean start = true;
     private Vector2 position;
     private final Image playerImage;
+    private float wallBounceFactor;
     PlayerInput playerInput;
     JFrame window;
 
@@ -28,7 +26,7 @@ public class Player extends Updateable {
         this.window = window;
         this.playerImage = new ImageIcon("src/game/resource/img/spaceship_brown_default_turned.png").getImage();
         this.playerInput = new PlayerInput();
-
+        this.wallBounceFactor = 0.6f;
         super.startUpdate();
     }
 
@@ -118,11 +116,24 @@ public class Player extends Updateable {
     }
 
     public void updatePos(float deltaTime) {
+        checkOutOfBounds();
         position.x += velocity.x * deltaTime;
         position.y += velocity.y * deltaTime;
     }
 
     public Projectile shoot(int weapon) {
         return new EnergyBall(getCenter(), velocity, this.playerViewAngle, 10f);
+    }
+
+    public void checkOutOfBounds() {
+        if (position.x < 0) {
+            velocity.x = Math.abs(velocity.x) * wallBounceFactor;
+        } else if (position.x + PLAYER_DIMENSIONS > GameCore.screenSize.x) {
+            velocity.x = Math.abs(velocity.x) * -1 * wallBounceFactor;
+        } else if (position.y < 0) {
+            velocity.y = Math.abs(velocity.y) * wallBounceFactor;
+        } else if (position.y + PLAYER_DIMENSIONS + 30 > GameCore.screenSize.y) {
+            velocity.y = Math.abs(velocity.y) * -1 * wallBounceFactor;
+        }
     }
 }
