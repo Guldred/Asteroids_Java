@@ -23,6 +23,7 @@ public class Asteroid extends Updateable {
     private final Image image;
     private final Area shape;
     private float wallBounceFactor;
+    private final float MAX_SPEED;
 
     public Asteroid(Vector2 position, Vector2 velocity, int size) {
         super();
@@ -34,6 +35,7 @@ public class Asteroid extends Updateable {
         this.image = new ImageIcon("src/game/resource/img/asteroids/asteroid_" + size + ".png").getImage();
         this.shape = createShape();
         this.wallBounceFactor = 1.2f;
+        this.MAX_SPEED = (float) (Math.random() * 20 + 1);
 
         startUpdate();
     }
@@ -86,13 +88,13 @@ public class Asteroid extends Updateable {
 
     public void checkOutOfBounds() {
         if (position.x < 0) {
-            velocity.x = Math.abs(velocity.x) * wallBounceFactor;
+            velocity.x = Math.min((Math.abs(velocity.x) * wallBounceFactor), MAX_SPEED);
         } else if (position.x + SIZE > GameCore.screenSize.x) {
-            velocity.x = Math.abs(velocity.x) * -1 * wallBounceFactor;
+            velocity.x = Math.max((Math.abs(velocity.x) * -1 * wallBounceFactor), -MAX_SPEED);
         } else if (position.y < 0) {
-            velocity.y = Math.abs(velocity.y) * wallBounceFactor;
+            velocity.y = Math.min((Math.abs(velocity.y) * wallBounceFactor), MAX_SPEED);
         } else if (position.y + SIZE + 30 > GameCore.screenSize.y) {
-            velocity.y = Math.abs(velocity.y) * -1 * wallBounceFactor;
+            velocity.y = Math.max((Math.abs(velocity.y) * -1 * wallBounceFactor), -MAX_SPEED);
         }
     }
 }

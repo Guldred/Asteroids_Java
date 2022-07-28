@@ -37,7 +37,7 @@ public class GameCore extends JComponent{
 
     public GameCore(JFrame window) {
         this.window = window;
-        screenSize = new Vector2(1920, 1080);
+        screenSize = new Vector2(1280, 720);
     }
 
     public void start() {
