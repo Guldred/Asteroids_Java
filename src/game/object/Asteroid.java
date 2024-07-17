@@ -35,7 +35,7 @@ public class Asteroid extends Updateable {
         this.image = new ImageIcon("src/game/resource/img/asteroids/asteroid_" + size + ".png").getImage();
         this.shape = createShape();
         this.wallBounceFactor = 1.2f;
-        this.MAX_SPEED = (float) (Math.random() * 20 + 1);
+        this.MAX_SPEED = (float) (Math.random() * 10 + 1);
 
         startUpdate();
     }
@@ -80,6 +80,7 @@ public class Asteroid extends Updateable {
         //Test
         g2.setColor(Color.RED);
         g2.draw(shape);
+        g2.draw(shape.getBounds());
     }
 
     public Vector2 getCenter() {
