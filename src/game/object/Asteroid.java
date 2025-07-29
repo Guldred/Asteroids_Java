@@ -53,7 +53,7 @@ public class Asteroid extends Updateable {
 
 
     @Override
-    protected void onUpdate(float deltaTime) {
+    public void onUpdate(float deltaTime) {
         this.UpdatePosition(deltaTime);
     }
 

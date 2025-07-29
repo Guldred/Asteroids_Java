@@ -53,7 +53,7 @@ public class BaseProjectile extends Updateable implements Projectile {
 
     @Override
     public float getSize() {
-        return size;
+        return size > 0 ? size : 8f;
     }
 
     @Override

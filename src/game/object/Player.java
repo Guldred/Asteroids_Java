@@ -136,4 +136,8 @@ public class Player extends Updateable {
             velocity.y = Math.abs(velocity.y) * -1 * wallBounceFactor;
         }
     }
+
+    public Vector2 getPosition() {
+        return position;
+    }
 }

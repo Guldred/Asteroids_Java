@@ -35,6 +35,8 @@ public class GameCore extends JComponent{
     private Player player;
     private PlayerInput playerInput;
 
+    private boolean playerAlive = true;
+
     public GameCore(JFrame window) {
         this.window = window;
         screenSize = new Vector2(1280, 720);
@@ -69,6 +71,7 @@ public class GameCore extends JComponent{
     }
 
     private void draw() {
+        updateGame();
         drawBackground();
         drawGame();
         drawUI();
@@ -87,7 +90,9 @@ public class GameCore extends JComponent{
     }
 
     private void drawGame() {
-        player.draw(g2);
+        if (playerAlive) {
+            player.draw(g2);
+        }
         for (int i = 0; i < projectiles.size(); i++) {
             if (projectiles.get(i) != null) {
                 projectiles.get(i).draw(g2);
@@ -151,7 +156,14 @@ public class GameCore extends JComponent{
         player = new Player(window);
         player.setPosition(new Vector2(100, 100));
         asteroids = new ArrayList<>();
-        asteroids.add(new Asteroid(new Vector2(100, 100), new Vector2(3, 2), 64));
+        int asteroidCount = 7;
+        for (int i = 0; i < asteroidCount; i++) {
+            Vector2 pos = new Vector2((float)(Math.random() * (screenSize.x - 100)), (float)(Math.random() * (screenSize.y - 100)));
+            Vector2 vel = new Vector2((float)(Math.random() * 6 - 3), (float)(Math.random() * 6 - 3));
+            int[] sizes = {16, 32, 64, 128};
+            int size = sizes[(int)(Math.random() * sizes.length)];
+            asteroids.add(new Asteroid(pos, vel, size));
+        }
     }
 
     private void initProjectiles() {
@@ -196,6 +208,43 @@ public class GameCore extends JComponent{
             Thread.sleep(t);
         } catch (InterruptedException e) {
             System.err.println("Thread interrupted: " + e.getMessage());
+        }
+    }
+
+    private void updateGame() {
+        if (!playerAlive) return;
+        player.onUpdate(1f / FPS);
+        for (Asteroid asteroid : asteroids) {
+            asteroid.onUpdate(1f / FPS);
+        }
+        for (Projectile proj : projectiles) {
+            if (proj instanceof Updateable) {
+                ((Updateable)proj).onUpdate(1f / FPS);
+            }
+        }
+        // Kollisionen: Projektile vs Asteroiden
+        List<Asteroid> destroyed = new ArrayList<>();
+        List<Projectile> usedProjectiles = new ArrayList<>();
+        for (Asteroid asteroid : asteroids) {
+            for (Projectile proj : projectiles) {
+                Rectangle projRect = new Rectangle((int)proj.getPosition().x, (int)proj.getPosition().y, (int)proj.getSize(), (int)proj.getSize());
+                if (asteroid.getShape().intersects(projRect)) {
+                    destroyed.add(asteroid);
+                    usedProjectiles.add(proj);
+                }
+            }
+        }
+        asteroids.removeAll(destroyed);
+        projectiles.removeAll(usedProjectiles);
+        // Kollisionen: Spieler vs Asteroiden
+        for (Asteroid asteroid : asteroids) {
+            double px = player.getPosition().x;
+            double py = player.getPosition().y;
+            double pr = Player.PLAYER_DIMENSIONS / 2.0;
+            Rectangle playerRect = new Rectangle((int)(px - pr), (int)(py - pr), (int)(pr * 2), (int)(pr * 2));
+            if (asteroid.getShape().intersects(playerRect)) {
+                playerAlive = false;
+            }
         }
     }
 
