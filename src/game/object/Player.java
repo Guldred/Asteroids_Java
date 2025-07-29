@@ -18,6 +18,12 @@ public class Player extends Updateable {
     private float wallBounceFactor;
     PlayerInput playerInput;
     JFrame window;
+    
+    // Health system
+    private int health = 100;
+    private boolean isInvulnerable = false;
+    private long invulnerabilityTimer = 0;
+    private static final long INVULNERABILITY_DURATION = 1500; // 1.5 seconds
 
 
 
@@ -36,6 +42,11 @@ public class Player extends Updateable {
         this.getInput(deltaTime);
         this.updatePos(deltaTime);
         this.turnToCursor();
+        
+        // Update invulnerability state
+        if (isInvulnerable && System.currentTimeMillis() - invulnerabilityTimer > INVULNERABILITY_DURATION) {
+            isInvulnerable = false;
+        }
     }
 
 
@@ -135,5 +146,51 @@ public class Player extends Updateable {
         } else if (position.y + PLAYER_DIMENSIONS + 30 > GameCore.screenSize.y) {
             velocity.y = Math.abs(velocity.y) * -1 * wallBounceFactor;
         }
+    }
+    
+    /**
+     * Applies damage to the player if not invulnerable
+     * @param damage Amount of damage to apply
+     * @return true if player took damage, false if invulnerable
+     */
+    public boolean takeDamage(int damage) {
+        if (isInvulnerable) {
+            return false;
+        }
+        
+        health -= damage;
+        if (health < 0) {
+            health = 0;
+        }
+        
+        // Make player invulnerable for a short time
+        isInvulnerable = true;
+        invulnerabilityTimer = System.currentTimeMillis();
+        
+        return true;
+    }
+    
+    /**
+     * Checks if the player is dead (health <= 0)
+     * @return true if player is dead, false otherwise
+     */
+    public boolean isDead() {
+        return health <= 0;
+    }
+    
+    /**
+     * Gets the current health of the player
+     * @return Current health value
+     */
+    public int getHealth() {
+        return health;
+    }
+    
+    /**
+     * Checks if the player is currently invulnerable
+     * @return true if invulnerable, false otherwise
+     */
+    public boolean isInvulnerable() {
+        return isInvulnerable;
     }
 }

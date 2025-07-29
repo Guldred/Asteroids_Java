@@ -86,6 +86,10 @@ public class Asteroid extends Updateable {
     public Vector2 getCenter() {
         return new Vector2( (float) (position.x + SIZE / 2), (float)(position.y + SIZE / 2));
     }
+    
+    public int getSize() {
+        return SIZE;
+    }
 
     public void checkOutOfBounds() {
         if (position.x < 0) {
