@@ -5,7 +5,6 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.util.HashMap;
 
-
 public class PlayerInput {
 
     HashMap<String, Boolean> keys = new HashMap<>();
@@ -108,6 +107,16 @@ public class PlayerInput {
         } else if(eventType == InputEventTypes.MOUSE_RELEASED) {
             System.out.println("Mouse released. Button: " + keyCode);
         }
+    }
+
+    public void fireBullet(double shipX, double shipY, double shipAngle) {
+        double speed = 10.0;
+        bullets.add(new Bullet(
+            shipX,
+            shipY,
+            Math.cos(shipAngle) * speed,
+            Math.sin(shipAngle) * speed
+        ));
     }
 
 }

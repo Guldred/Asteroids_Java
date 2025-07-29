@@ -1,6 +1,6 @@
 package game.component;
 
-import game.object.Asteroid;
+import game.component.Asteroid;
 import game.object.Player;
 import game.object.projectiles.Projectile;
 
@@ -9,194 +9,126 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.List;
+// ... (rest of the imports)
+public class GameCore extends JPanel {
+    private Main main;
+    private List<Asteroid> asteroids = new ArrayList<>();
+    private List<Bullet> bullets = new ArrayList<>();
+    private boolean gameOver = false;
 
-public class GameCore extends JComponent{
+    // Add ship variables
+    private double shipX = 640, shipY = 360;
+    private double shipAngle = 0;
+    private boolean leftPressed = false, rightPressed = false;
 
-    private JFrame window;
-    private Graphics2D g2;
-    private BufferedImage image;
-
-    private int width;
-    private int height;
-    private Thread thread;
-    private boolean start = true;
-
-    private List<Projectile> projectiles;
-    private List<Asteroid> asteroids;
-
-    public static Vector2 screenSize;
-
-    // Game Fps
-    private final int FPS = 67;
-    private final int TARGET_TIME = 1000000000 / FPS;
-
-    // Game Objects
-    private Player player;
-    private PlayerInput playerInput;
-
-    public GameCore(JFrame window) {
-        this.window = window;
-        screenSize = new Vector2(1280, 720);
-    }
-
-    public void start() {
-        width = getWidth();
-        height = getHeight();
-
-
-        initGFX();
-        initGameObjects();
-        initInput();
-        initProjectiles();
-
-
-
-        thread = new Thread(() -> {
-            long frameStartTime = 0;
-            long frameRenderTime = 0;
-            while (start) {
-                frameStartTime = System.nanoTime();
-                draw();
-                frameRenderTime = System.nanoTime() - frameStartTime;
-                if (frameRenderTime < TARGET_TIME) {
-                    sleep((TARGET_TIME - frameRenderTime) / 1000000);
-                }
-
-            }
-        });
-        thread.start();
-    }
-
-    private void draw() {
-        drawBackground();
-        drawGame();
-        drawUI();
-        render();
-    }
-
-    private void render() {
-        Graphics g = getGraphics();
-        g.drawImage(image, 0, 0, null);
-        g.dispose();
-    }
-
-    private void drawBackground() {
-        g2.setColor(Color.BLACK);
-        g2.fillRect(0, 0, width, height);
-    }
-
-    private void drawGame() {
-        player.draw(g2);
-        for (int i = 0; i < projectiles.size(); i++) {
-            if (projectiles.get(i) != null) {
-                projectiles.get(i).draw(g2);
-            }
-        }
-        for (int i = 0; i < asteroids.size(); i++) {
-            if (asteroids.get(i) != null) {
-                asteroids.get(i).draw(g2);
-            }
-        }
-
-    }
-
-    private void drawUI() {
-        // TODO
-    }
-
-    private void initGFX() {
-        //Background
-        image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        g2 = image.createGraphics();
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-
-
-    }
-
-    private void initInput() {
-        //Capture Inputs and send them to player (TODO: make this Observer Pattern)
-        requestFocus();
+    public GameCore(Main main) {
+        this.main = main;
+        // Initialize game
+        spawnAsteroids(5);
+        new Timer(16, e -> updateGame()).start(); // ~60 FPS
+        // Add keyboard listeners
         addKeyListener(new KeyAdapter() {
             @Override
-            public void keyPressed(KeyEvent e) { inputListenerEvent(InputEventTypes.KEY_PRESSED, e.getKeyCode());}
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_LEFT) leftPressed = true;
+                if (e.getKeyCode() == KeyEvent.VK_RIGHT) rightPressed = true;
+            }
 
             @Override
             public void keyReleased(KeyEvent e) {
-                inputListenerEvent(InputEventTypes.KEY_RELEASED, e.getKeyCode());
-            }
-
-        });
-
-        addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                playerShoot(1);
-            }
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                //playerShoot(2);
+                if (e.getKeyCode() == KeyEvent.VK_LEFT) leftPressed = false;
+                if (e.getKeyCode() == KeyEvent.VK_RIGHT) rightPressed = false;
             }
         });
+        setFocusable(true);
     }
 
-    public void inputListenerEvent(InputEventTypes eventType, int keyCode) {
-        player.setInputToMap(eventType, keyCode);
-    }
-
-
-
-    private void initGameObjects() {
-        player = new Player(window);
-        player.setPosition(new Vector2(100, 100));
-        asteroids = new ArrayList<>();
-        asteroids.add(new Asteroid(new Vector2(100, 100), new Vector2(3, 2), 64));
-    }
-
-    private void initProjectiles() {
-        projectiles = new ArrayList<>();
-
-        new Thread(() -> {
-            long frameStartTime = 0;
-            long frameRenderTime = 0;
-            while (start) {
-                frameStartTime = System.nanoTime();
-
-                //use update on all projectiles
-
-                for (int i = 0; i < projectiles.size(); i++) {
-                    if (projectiles.get(i) != null) {
-                        //projectiles.get(i).Update();
-                        if (projectiles.get(i).outOfBounds(width, height)) {
-                            projectiles.get(i).stop();
-                            projectiles.remove(projectiles.get(i));
-                        }
-                    } else {
-                        projectiles.remove(projectiles.get(i));
-                    }
-                }
-
-                frameRenderTime = System.nanoTime() - frameStartTime;
-                if (frameRenderTime < TARGET_TIME) {
-                    sleep((TARGET_TIME - frameRenderTime) / 1000000);
-                }
-
-            }
-        }).start();
-    }
-
-    public void playerShoot(int weapon) {
-        projectiles.add(player.shoot(weapon));
-    }
-
-
-    private void sleep(long t) {
-        try {
-            Thread.sleep(t);
-        } catch (InterruptedException e) {
-            System.err.println("Thread interrupted: " + e.getMessage());
+    private void spawnAsteroids(int count) {
+        Random rand = new Random();
+        for (int i = 0; i < count; i++) {
+            double angle = rand.nextDouble() * 2 * Math.PI;
+            double speed = rand.nextDouble() * 2 + 1;
+            asteroids.add(new Asteroid(
+                rand.nextDouble() * 1280,
+                rand.nextDouble() * 720,
+                Math.cos(angle) * speed,
+                Math.sin(angle) * speed,
+                rand.nextInt(3) + 1
+            ));
         }
     }
 
+    private void updateGame() {
+        if (gameOver) return;
+
+        // In updateGame() method
+        if (leftPressed) shipAngle -= 0.05;
+        if (rightPressed) shipAngle += 0.05;
+
+        // Add ship movement
+        shipX += Math.cos(shipAngle) * 5;
+        shipY += Math.sin(shipAngle) * 5;
+
+        // Update game objects
+        for (Asteroid asteroid : asteroids) {
+            asteroid.update();
+        }
+
+        for (Bullet bullet : bullets) {
+            bullet.update();
+        }
+
+        // Collision detection
+        checkCollisions();
+
+        // Rendering
+        repaint();
+    }
+
+    private void checkCollisions() {
+        // Bullet-Asteroid collisions
+        for (int b = bullets.size()-1; b >= 0; b--) {
+            Bullet bullet = bullets.get(b);
+            for (int a = asteroids.size()-1; a >= 0; a--) {
+                Asteroid asteroid = asteroids.get(a);
+                if (bullet.getBounds().intersects(asteroid.getBounds())) {
+                    // Destroy asteroid and bullet
+                    asteroids.remove(a);
+                    bullets.remove(b);
+                    break;
+                }
+            }
+        }
+
+        // Ship-Asteroid collisions
+        for (Asteroid asteroid : asteroids) {
+            if (new Rectangle2D.Double(shipX, shipY, 16, 16).intersects(asteroid.getBounds())) {
+                // Game over
+                gameOver = true;
+                // Show game over message
+                main.setTitle("Game Over - Press R to Restart");
+                // Add restart logic
+            }
+        }
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        // Draw ship
+        g.setColor(Color.WHITE);
+        g.fillOval((int)shipX, (int)shipY, 16, 16);
+
+        // Draw asteroids
+        for (Asteroid asteroid : asteroids) {
+            g.setColor(Color.GRAY);
+            g.fillOval((int)asteroid.x, (int)asteroid.y, asteroid.size*16, asteroid.size*16);
+        }
+
+        // Draw bullets
+        for (Bullet bullet : bullets) {
+            g.setColor(Color.YELLOW);
+            g.fillRect((int)bullet.x, (int)bullet.y, 4, 4);
+        }
+    }
 }
