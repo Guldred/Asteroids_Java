@@ -70,6 +70,7 @@ public class GameCore extends JComponent{
 
     private void draw() {
         drawBackground();
+        updateGameLogic();
         drawGame();
         drawUI();
         render();
@@ -151,7 +152,41 @@ public class GameCore extends JComponent{
         player = new Player(window);
         player.setPosition(new Vector2(100, 100));
         asteroids = new ArrayList<>();
-        asteroids.add(new Asteroid(new Vector2(100, 100), new Vector2(3, 2), 64));
+        spawnInitialAsteroids();
+    }
+
+    private void spawnInitialAsteroids() {
+        // Spawn 5-8 asteroids with random properties
+        int asteroidCount = (int) (Math.random() * 4) + 5; // 5-8 asteroids
+        
+        for (int i = 0; i < asteroidCount; i++) {
+            spawnRandomAsteroid();
+        }
+    }
+
+    private void spawnRandomAsteroid() {
+        // Random position (avoid spawning too close to player)
+        Vector2 position;
+        do {
+            position = new Vector2(
+                (float) (Math.random() * (width - 100) + 50),
+                (float) (Math.random() * (height - 100) + 50)
+            );
+        } while (position.distance(new Vector2(100, 100)) < 150); // Keep distance from player spawn
+        
+        // Random velocity direction and speed
+        float angle = (float) (Math.random() * 360);
+        float speed = (float) (Math.random() * 3 + 1); // Speed between 1-4
+        Vector2 velocity = new Vector2(
+            (float) Math.cos(Math.toRadians(angle)) * speed,
+            (float) Math.sin(Math.toRadians(angle)) * speed
+        );
+        
+        // Random size (32, 48, or 64)
+        int[] sizes = {32, 48, 64};
+        int size = sizes[(int) (Math.random() * sizes.length)];
+        
+        asteroids.add(new Asteroid(position, velocity, size));
     }
 
     private void initProjectiles() {
@@ -199,4 +234,41 @@ public class GameCore extends JComponent{
         }
     }
 
+    private void updateGameLogic() {
+        // Check for collisions between player and asteroids
+        for (int i = asteroids.size() - 1; i >= 0; i--) {
+            Asteroid asteroid = asteroids.get(i);
+            if (player.collidesWith(asteroid)) {
+                // Player hit by asteroid - game over (restart for now)
+                handlePlayerDestruction();
+                return;
+            }
+        }
+
+        // Check for collisions between projectiles and asteroids
+        for (int i = projectiles.size() - 1; i >= 0; i--) {
+            Projectile projectile = projectiles.get(i);
+            for (int j = asteroids.size() - 1; j >= 0; j--) {
+                Asteroid asteroid = asteroids.get(j);
+                if (projectile.collidesWith(asteroid)) {
+                    // Remove both projectile and asteroid
+                    projectile.stop();
+                    projectiles.remove(i);
+                    asteroids.remove(j);
+                    
+                    // Spawn a new asteroid to keep the game interesting
+                    spawnRandomAsteroid();
+                    break; // Exit inner loop since projectile is destroyed
+                }
+            }
+        }
+    }
+
+    private void handlePlayerDestruction() {
+        // Simple restart - reset player position and respawn asteroids
+        player.setPosition(new Vector2(100, 100));
+        asteroids.clear();
+        spawnInitialAsteroids();
+        System.out.println("Player destroyed! Game restarted.");
+    }
 }

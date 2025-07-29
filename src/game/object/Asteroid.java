@@ -98,4 +98,8 @@ public class Asteroid extends Updateable {
             velocity.y = Math.max((Math.abs(velocity.y) * -1 * wallBounceFactor), -MAX_SPEED);
         }
     }
+
+    public int getSize() {
+        return SIZE;
+    }
 }

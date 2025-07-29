@@ -1,6 +1,7 @@
 package game.object.projectiles;
 
 import game.component.Vector2;
+import game.object.Asteroid;
 
 import java.awt.*;
 
@@ -20,5 +21,6 @@ public interface Projectile {
 
     public boolean outOfBounds(int width, int height);
 
+    public boolean collidesWith(Asteroid asteroid);
 
 }

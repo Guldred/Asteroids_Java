@@ -2,6 +2,7 @@ package game.object.projectiles;
 
 import game.component.Updateable;
 import game.component.Vector2;
+import game.object.Asteroid;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -76,7 +77,12 @@ public class BaseProjectile extends Updateable implements Projectile {
         position.add(frameVelocity);
     }
 
-
-
-
+    @Override
+    public boolean collidesWith(Asteroid asteroid) {
+        Vector2 projectileCenter = getCenter();
+        Vector2 asteroidCenter = asteroid.getCenter();
+        float distance = projectileCenter.distance(asteroidCenter);
+        float collisionDistance = (size / 2) + (asteroid.getSize() / 2);
+        return distance < collisionDistance;
+    }
 }

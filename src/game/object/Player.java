@@ -82,7 +82,7 @@ public class Player extends Updateable {
     }
 
     public Vector2 getCenter() {
-        return new Vector2( (float) (position.x + PLAYER_DIMENSIONS / 2), (float)(position.y + PLAYER_DIMENSIONS / 2));
+        return new Vector2((float)(position.x + PLAYER_DIMENSIONS / 2), (float)(position.y + PLAYER_DIMENSIONS / 2));
     }
 
     public float getAngle() {
@@ -135,5 +135,13 @@ public class Player extends Updateable {
         } else if (position.y + PLAYER_DIMENSIONS + 30 > GameCore.screenSize.y) {
             velocity.y = Math.abs(velocity.y) * -1 * wallBounceFactor;
         }
+    }
+
+    public boolean collidesWith(Asteroid asteroid) {
+        Vector2 playerCenter = getCenter();
+        Vector2 asteroidCenter = asteroid.getCenter();
+        float distance = playerCenter.distance(asteroidCenter);
+        float collisionDistance = (float)(PLAYER_DIMENSIONS / 2) + (asteroid.getSize() / 2);
+        return distance < collisionDistance;
     }
 }
