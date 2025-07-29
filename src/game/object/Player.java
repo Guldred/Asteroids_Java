@@ -6,6 +6,8 @@ import game.object.projectiles.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Area;
+import java.awt.geom.Ellipse2D;
 
 public class Player extends Updateable {
     public static final double PLAYER_DIMENSIONS = 64;
@@ -18,6 +20,12 @@ public class Player extends Updateable {
     private float wallBounceFactor;
     PlayerInput playerInput;
     JFrame window;
+
+    // Health system
+    private int health = 3;
+    private boolean invulnerable = false;
+    private long invulnerabilityStartTime;
+    private final long INVULNERABILITY_DURATION = 2000; // 2 seconds of invulnerability after hit
 
 
 
@@ -36,6 +44,11 @@ public class Player extends Updateable {
         this.getInput(deltaTime);
         this.updatePos(deltaTime);
         this.turnToCursor();
+
+        // Check if invulnerability has expired
+        if (invulnerable && System.currentTimeMillis() - invulnerabilityStartTime > INVULNERABILITY_DURATION) {
+            invulnerable = false;
+        }
     }
 
 
@@ -68,13 +81,23 @@ public class Player extends Updateable {
     }
 
     public void draw(Graphics2D g2) {
+        // Don't draw if invulnerable and should be blinking
+        if (invulnerable && System.currentTimeMillis() % 400 < 200) {
+            return; // Skip drawing to create blinking effect
+        }
+
         AffineTransform oldTransform = g2.getTransform();
         g2.translate(position.x, position.y);
         AffineTransform t = new AffineTransform();
         t.rotate(Math.toRadians(playerViewAngle), PLAYER_DIMENSIONS / 2, PLAYER_DIMENSIONS / 2);
         g2.drawImage(playerImage, t, null);
-        //g2.drawImage(accForward ? accelImage : image, t, null);
         g2.setTransform(oldTransform);
+
+        // Debug hitbox drawing
+        /*
+        g2.setColor(Color.GREEN);
+        g2.draw(getShape());
+        */
     }
 
     public Vector2 getPos() {
@@ -82,7 +105,7 @@ public class Player extends Updateable {
     }
 
     public Vector2 getCenter() {
-        return new Vector2( (float) (position.x + PLAYER_DIMENSIONS / 2), (float)(position.y + PLAYER_DIMENSIONS / 2));
+        return new Vector2(position.x + (float)(PLAYER_DIMENSIONS / 2), position.y + (float)(PLAYER_DIMENSIONS / 2));
     }
 
     public float getAngle() {
@@ -135,5 +158,33 @@ public class Player extends Updateable {
         } else if (position.y + PLAYER_DIMENSIONS + 30 > GameCore.screenSize.y) {
             velocity.y = Math.abs(velocity.y) * -1 * wallBounceFactor;
         }
+    }
+
+    public void takeDamage(int amount) {
+        if (!invulnerable) {
+            health -= amount;
+            if (health > 0) {
+                // Make player invulnerable for a short time
+                invulnerable = true;
+                invulnerabilityStartTime = System.currentTimeMillis();
+            }
+        }
+    }
+
+    public int getHealth() {
+        return health;
+    }
+
+    public boolean isInvulnerable() {
+        return invulnerable;
+    }
+
+    public Area getShape() {
+        double size = PLAYER_DIMENSIONS * 0.75; // Slightly smaller hitbox than visual size
+        Ellipse2D ellipse = new Ellipse2D.Double(
+            position.x + (float)PLAYER_DIMENSIONS/2 - size/2, 
+            position.y + (float)PLAYER_DIMENSIONS/2 - size/2, 
+            size, size);
+        return new Area(ellipse);
     }
 }
