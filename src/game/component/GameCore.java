@@ -14,6 +14,7 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class GameCore extends JComponent{
 
@@ -73,6 +74,12 @@ public class GameCore extends JComponent{
     }
     
     private GameState currentState = GameState.MENU;
+    
+    // Background stars
+    private static final int NUM_STARS = 100;
+    private Vector2[] starPositions;
+    private int[] starSizes;
+    private Color[] starColors;
 
     public GameCore(JFrame window) {
         this.window = window;
@@ -88,6 +95,7 @@ public class GameCore extends JComponent{
         initGameObjects();
         initInput();
         initProjectiles();
+        initStars();
 
         thread = new Thread(() -> {
             long frameStartTime = 0;
@@ -103,6 +111,27 @@ public class GameCore extends JComponent{
             }
         });
         thread.start();
+    }
+    
+    private void initStars() {
+        Random random = new Random();
+        starPositions = new Vector2[NUM_STARS];
+        starSizes = new int[NUM_STARS];
+        starColors = new Color[NUM_STARS];
+        
+        for (int i = 0; i < NUM_STARS; i++) {
+            starPositions[i] = new Vector2(
+                random.nextFloat() * width,
+                random.nextFloat() * height
+            );
+            
+            // Vary star sizes (1-3 pixels)
+            starSizes[i] = random.nextInt(3) + 1;
+            
+            // Vary star brightness
+            int brightness = 150 + random.nextInt(106); // 150-255
+            starColors[i] = new Color(brightness, brightness, brightness);
+        }
     }
     
     private void update() {
@@ -392,13 +421,11 @@ public class GameCore extends JComponent{
         g2.setColor(Color.BLACK);
         g2.fillRect(0, 0, width, height);
         
-        // Draw some stars in the background
-        g2.setColor(Color.WHITE);
-        for (int i = 0; i < 100; i++) {
-            int x = (int) (Math.random() * width);
-            int y = (int) (Math.random() * height);
-            int size = (int) (Math.random() * 2) + 1;
-            g2.fillRect(x, y, size, size);
+        // Draw the static stars
+        for (int i = 0; i < NUM_STARS; i++) {
+            g2.setColor(starColors[i]);
+            int size = starSizes[i];
+            g2.fillRect((int)starPositions[i].x, (int)starPositions[i].y, size, size);
         }
     }
 
