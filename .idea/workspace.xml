@@ -4,256 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8cb6bc53-2f9d-4061-b2bf-a3add0362599" name="Changes" comment="Windsurf Claude 4">
-      <change afterPath="$PROJECT_DIR$/src/game/component/GameState.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/effects/Particle.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/effects/ParticleSystem.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/effects/ScreenShake.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/object/PowerUp.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Box_Item_0.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Box_Item_1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Box_Item_10.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Box_Item_11.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Box_Item_12.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Box_Item_13.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Box_Item_14.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Box_Item_15.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Box_Item_2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Box_Item_3.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Box_Item_4.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Box_Item_5.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Box_Item_6.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Box_Item_7.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Box_Item_8.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Box_Item_9.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Box_Denied_0.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Box_Denied_1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Box_Gem_0.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Box_Gem_1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Box_Gem_2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Box_Gems_0.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Box_Powerup_0.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Box_Powerup_1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Box_Powerup_2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Box_Powerup_3.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Box_Sign_0.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Box_Sign_1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Box_Sign_2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Box_Sign_3.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Box_Sign_4.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Character_0.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Character_1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Fire_Explosion_0.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Other_Misc_0.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Other_Misc_1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Other_Misc_2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_0.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_10.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_11.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_12.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_13.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_14.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_15.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_16.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_17.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_18.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_19.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_20.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_21.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_22.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_23.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_24.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_25.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_26.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_27.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_28.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_29.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_3.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_30.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_31.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_32.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_4.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_5.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_6.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_7.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_8.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_9.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Building_0.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Building_1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Building_2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Building_3.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Building_4.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Cash_0.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Control_0.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Control_1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Control_2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Drop_0.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Enemy_0.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Enemy_1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Enemy_10.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Enemy_11.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Enemy_12.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Enemy_13.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Enemy_14.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Enemy_15.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Enemy_16.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Enemy_17.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Enemy_18.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Enemy_19.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Enemy_2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Enemy_20.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Enemy_21.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Enemy_22.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Enemy_23.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Enemy_3.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Enemy_4.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Enemy_5.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Enemy_6.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Enemy_7.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Enemy_8.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Enemy_9.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Flower_0.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Flower_1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Flower_2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Gem_0.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Gem_1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Gem_2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Gem_3.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Gem_4.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Gem_5.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Grass_0.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Grass_1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Heart_0.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Heart_1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Heart_2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Heart_3.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Mystery_Box_0.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Mystery_Box_1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Mystery_Box_2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Mystery_Box_3.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Mystery_Box_4.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Mystery_Box_5.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Mystery_Box_6.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Orb_0.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Orb_1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Orb_2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Orb_3.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Orb_4.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Orb_5.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Orb_6.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Potion_0.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Potion_1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Rocket_0.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Rocket_1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Rocket_2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Rocket_3.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Rocket_4.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Rocket_5.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Rocket_6.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Rocket_7.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Rocket_8.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Shield_0.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Shield_1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Shield_10.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Shield_11.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Shield_12.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Shield_13.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Shield_14.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Shield_15.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Shield_16.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Shield_17.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Shield_2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Shield_3.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Shield_4.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Shield_5.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Shield_6.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Shield_7.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Shield_8.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Shield_9.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Skull_0.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Skull_1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Skull_10.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Skull_11.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Skull_12.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Skull_13.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Skull_14.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Skull_15.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Skull_16.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Skull_17.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Skull_18.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Skull_19.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Skull_2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Skull_3.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Skull_4.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Skull_5.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Skull_6.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Skull_7.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Skull_8.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Skull_9.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Special_0.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Special_1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Special_10.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Special_11.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Special_2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Special_3.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Special_4.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Special_5.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Special_6.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Special_7.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Special_8.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Special_9.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Star_0.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Star_1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Star_10.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Star_2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Star_3.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Star_4.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Star_5.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Star_6.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Star_7.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Star_8.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Star_9.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Tool_0.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Tool_1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Weapon_1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Weapon_2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Weapon_3.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Weapon_4.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Weapon_5.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Weapon_6.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Weapon_7.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Weapon_8.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Weapon_Special_0.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Weapon_Special_1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Weapon_Special_10.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Weapon_Special_2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Weapon_Special_3.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Weapon_Special_4.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Weapon_Special_5.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Weapon_Special_6.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Weapon_Special_7.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Weapon_Special_8.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Weapon_Special_9.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Weapon_Sword_0.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Weapon_Sword_1.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Weapon_Sword_10.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Weapon_Sword_11.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Weapon_Sword_12.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Weapon_Sword_13.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Weapon_Sword_2.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Weapon_Sword_3.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Weapon_Sword_4.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Weapon_Sword_5.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Weapon_Sword_6.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Weapon_Sword_7.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Weapon_Sword_8.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/resource/img/powerups/Item_Powerup_Weapon_Sword_9.png" afterDir="false" />
+    <list default="true" id="8cb6bc53-2f9d-4061-b2bf-a3add0362599" name="Changes" comment="Added features">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/game/component/GameCore.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/component/GameCore.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/game/component/Updateable.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/component/Updateable.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/game/object/Player.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/object/Player.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -273,7 +25,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="ai/jetbrains-ai" />
+        <entry key="$PROJECT_DIR$" value="ai/windsurf-v2" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -313,7 +65,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "WebServerToolWindowFactoryState": "false",
-    "git-widget-placeholder": "ai/windsurf",
+    "git-widget-placeholder": "master",
     "junie.onboarding.icon.badge.shown": "true",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "/Users/christian.malak/webdev_priv/Asteroids_Java/src/game/resource/img/powerups",
@@ -324,7 +76,7 @@
     "project.structure.last.edited": "Modules",
     "project.structure.proportion": "0.0",
     "project.structure.side.proportion": "0.0",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "settings.editor.selected.configurable": "com.codeium.AppSettingsConfigurable",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -429,7 +181,31 @@
       <option name="project" value="LOCAL" />
       <updated>1753802948288</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Claude 3.7">
+      <option name="closed" value="true" />
+      <created>1753864098846</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1753864098846</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Fixed background">
+      <option name="closed" value="true" />
+      <created>1753864309677</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1753864309677</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Added features">
+      <option name="closed" value="true" />
+      <created>1753866012709</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1753866012709</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -453,7 +229,10 @@
     <MESSAGE value="Jetbrains Junie" />
     <MESSAGE value="Jetbrains Claude 4" />
     <MESSAGE value="Windsurf Claude 4" />
-    <option name="LAST_COMMIT_MESSAGE" value="Windsurf Claude 4" />
+    <MESSAGE value="Claude 3.7" />
+    <MESSAGE value="Fixed background" />
+    <MESSAGE value="Added features" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added features" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
