@@ -174,6 +174,10 @@ public class Player extends Updateable {
     public Vector2 getPosition() {
         return position;
     }
+    
+    public Vector2 getVelocity() {
+        return velocity;
+    }
 
     public Vector2 getCenter() {
         return new Vector2( (float) (position.x + PLAYER_DIMENSIONS / 2), (float)(position.y + PLAYER_DIMENSIONS / 2));
@@ -311,5 +315,13 @@ public class Player extends Updateable {
     
     public boolean hasActiveShield() {
         return shieldActive;
+    }
+    
+    public boolean hasRapidFire() {
+        return rapidFireActive;
+    }
+    
+    public boolean hasTripleShot() {
+        return tripleShotActive;
     }
 }

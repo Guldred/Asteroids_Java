@@ -33,6 +33,7 @@ public class GameCore extends JComponent{
     private ParticleSystem particleSystem;
     private PowerUpManager powerUpManager;
     private SoundManager soundManager;
+    private BackgroundManager backgroundManager;
 
     public static Vector2 screenSize;
 
@@ -75,16 +76,35 @@ public class GameCore extends JComponent{
     
     private GameState currentState = GameState.MENU;
     
-    // Background stars
+    // Background stars (kept for fallback)
     private static final int NUM_STARS = 100;
     private Vector2[] starPositions;
     private int[] starSizes;
     private Color[] starColors;
+    
+    // Arcade-style UI
+    private Font arcadeFont;
+    private Font arcadeFontLarge;
+    private Font arcadeFontSmall;
 
     public GameCore(JFrame window) {
         this.window = window;
         screenSize = new Vector2(1280, 720);
         soundManager = SoundManager.getInstance();
+        
+        // Load arcade-style fonts
+        try {
+            // Use a default font with BOLD style to simulate arcade font
+            arcadeFont = new Font("Arial", Font.BOLD, 20);
+            arcadeFontLarge = new Font("Arial", Font.BOLD, 48);
+            arcadeFontSmall = new Font("Arial", Font.BOLD, 16);
+        } catch (Exception e) {
+            System.err.println("Error loading fonts: " + e.getMessage());
+            // Fallback to default fonts
+            arcadeFont = new Font("Arial", Font.BOLD, 20);
+            arcadeFontLarge = new Font("Arial", Font.BOLD, 48);
+            arcadeFontSmall = new Font("Arial", Font.BOLD, 16);
+        }
     }
 
     public void start() {
@@ -95,7 +115,13 @@ public class GameCore extends JComponent{
         initGameObjects();
         initInput();
         initProjectiles();
-        initStars();
+        initStars(); // Keep for fallback
+        
+        // Initialize background manager
+        backgroundManager = new BackgroundManager(width, height);
+        // Start with a random background theme
+        BackgroundManager.BackgroundTheme[] themes = BackgroundManager.BackgroundTheme.values();
+        backgroundManager.setTheme(themes[new Random().nextInt(themes.length)]);
 
         thread = new Thread(() -> {
             long frameStartTime = 0;
@@ -138,6 +164,7 @@ public class GameCore extends JComponent{
         switch (currentState) {
             case MENU:
                 // Menu logic will be handled by input events
+                updateBackground(0, 0); // Slow background movement in menu
                 break;
                 
             case PLAYING:
@@ -153,8 +180,14 @@ public class GameCore extends JComponent{
                 if (System.currentTimeMillis() - gameOverTime > RESTART_DELAY && playerInput.isKey_space()) {
                     restartGame();
                 }
+                updateBackground(0, 0); // Slow background movement in game over
                 break;
         }
+    }
+    
+    private void updateBackground(float playerVelocityX, float playerVelocityY) {
+        // Update background with parallax effect
+        backgroundManager.update(playerVelocityX, playerVelocityY);
     }
     
     private void updateGameplay() {
@@ -177,6 +210,9 @@ public class GameCore extends JComponent{
         
         // Update power-up manager
         powerUpManager.update();
+        
+        // Update background with parallax effect based on player velocity
+        updateBackground(player.getVelocity().x * 0.01f, player.getVelocity().y * 0.01f);
         
         // Handle collisions
         int destroyedAsteroids = CollisionDetector.handleProjectileAsteroidCollisions(projectiles, asteroids);
@@ -353,22 +389,25 @@ public class GameCore extends JComponent{
     }
     
     private void drawMenu() {
-        // Draw title
+        // Draw title with arcade style
         g2.setColor(Color.WHITE);
-        g2.setFont(new Font("Arial", Font.BOLD, 48));
+        g2.setFont(arcadeFontLarge);
         String title = "ASTEROIDS";
         FontMetrics fm = g2.getFontMetrics();
         int textWidth = fm.stringWidth(title);
-        g2.drawString(title, width / 2 - textWidth / 2, height / 3);
+        
+        // Draw title with glow effect
+        drawTextWithGlow(g2, title, width / 2 - textWidth / 2, height / 3, Color.WHITE, Color.BLUE);
         
         // Draw instructions
-        g2.setFont(new Font("Arial", Font.PLAIN, 20));
+        g2.setFont(arcadeFont);
         String[] instructions = {
             "Arrow Keys: Move Ship",
             "Mouse: Aim Ship",
             "Left Click: Shoot",
             "P: Pause Game",
             "M: Toggle Sound",
+            "B: Change Background",
             "",
             "Press SPACE to Start"
         };
@@ -389,26 +428,55 @@ public class GameCore extends JComponent{
             g2.setColor(new Color(200, 200, 200, 100));
             g2.fillOval(x - size/2, y2 - size/2, size, size);
         }
+        
+        // Make the "Press SPACE to Start" text pulse
+        String startText = "Press SPACE to Start";
+        textWidth = g2.getFontMetrics().stringWidth(startText);
+        float pulse = (float)Math.sin(time / 200.0) * 0.2f + 0.8f;
+        Color pulseColor = new Color(pulse, pulse, 1.0f);
+        
+        // Draw at the bottom with a glow effect
+        drawTextWithGlow(g2, startText, width / 2 - textWidth / 2, height - 100, pulseColor, Color.BLUE);
     }
     
     private void drawPauseScreen() {
         // Semi-transparent overlay
-        g2.setColor(new Color(0, 0, 0, 150));
+        g2.setColor(new Color(0, 0, 0, 150)); // Semi-transparent black
         g2.fillRect(0, 0, width, height);
         
-        // Draw pause text
-        g2.setColor(Color.WHITE);
-        g2.setFont(new Font("Arial", Font.BOLD, 48));
+        // Draw pause text with arcade style
+        g2.setFont(arcadeFontLarge);
         String pauseText = "PAUSED";
         FontMetrics fm = g2.getFontMetrics();
         int textWidth = fm.stringWidth(pauseText);
-        g2.drawString(pauseText, width / 2 - textWidth / 2, height / 2);
+        
+        // Draw with glow effect
+        drawTextWithGlow(g2, pauseText, width / 2 - textWidth / 2, height / 2, Color.WHITE, Color.CYAN);
         
         // Draw instructions
-        g2.setFont(new Font("Arial", Font.PLAIN, 20));
+        g2.setFont(arcadeFont);
+        
+        // Make the text pulse
+        long time = System.currentTimeMillis();
+        float pulse = (float)Math.sin(time / 200.0) * 0.2f + 0.8f;
+        Color pulseColor = new Color(pulse, pulse, 1.0f);
+        
         String resumeText = "Press P to Resume";
         textWidth = g2.getFontMetrics().stringWidth(resumeText);
-        g2.drawString(resumeText, width / 2 - textWidth / 2, height / 2 + 50);
+        drawTextWithGlow(g2, resumeText, width / 2 - textWidth / 2, height / 2 + 50, pulseColor, Color.CYAN);
+        
+        // Draw additional options
+        String[] options = {
+            "M: Toggle Sound",
+            "B: Change Background"
+        };
+        
+        int y = height / 2 + 100;
+        for (String option : options) {
+            textWidth = g2.getFontMetrics().stringWidth(option);
+            g2.drawString(option, width / 2 - textWidth / 2, y);
+            y += 30;
+        }
     }
 
     private void render() {
@@ -418,15 +486,27 @@ public class GameCore extends JComponent{
     }
 
     private void drawBackground() {
+        // Clear background
         g2.setColor(Color.BLACK);
         g2.fillRect(0, 0, width, height);
         
-        // Draw the static stars
-        for (int i = 0; i < NUM_STARS; i++) {
-            g2.setColor(starColors[i]);
-            int size = starSizes[i];
-            g2.fillRect((int)starPositions[i].x, (int)starPositions[i].y, size, size);
+        // Draw the background using BackgroundManager
+        backgroundManager.draw(g2);
+    }
+    
+    private void drawTextWithGlow(Graphics2D g2, String text, int x, int y, Color textColor, Color glowColor) {
+        // Draw glow
+        g2.setColor(glowColor);
+        for (int i = 1; i <= 3; i++) {
+            g2.drawString(text, x - i, y - i);
+            g2.drawString(text, x + i, y - i);
+            g2.drawString(text, x - i, y + i);
+            g2.drawString(text, x + i, y + i);
         }
+        
+        // Draw text
+        g2.setColor(textColor);
+        g2.drawString(text, x, y);
     }
 
     private void drawGame() {
@@ -444,55 +524,143 @@ public class GameCore extends JComponent{
     }
 
     private void drawUI() {
-        // Draw player health
+        // Draw arcade-style UI with neon glow effect
+        
+        // Draw player health bar
+        int healthBarWidth = 150;
+        int healthBarHeight = 15;
+        int healthBarX = 20;
+        int healthBarY = 20;
+        
+        // Health bar background
+        g2.setColor(new Color(50, 50, 50, 200));
+        g2.fillRect(healthBarX, healthBarY, healthBarWidth, healthBarHeight);
+        
+        // Health bar fill
+        float healthPercent = (float)player.getHealth() / 100;
+        int fillWidth = (int)(healthBarWidth * healthPercent);
+        
+        // Health color gradient (green to red)
+        Color healthColor = new Color(
+            (int)(255 * (1 - healthPercent)),
+            (int)(255 * healthPercent),
+            0
+        );
+        
+        g2.setColor(healthColor);
+        g2.fillRect(healthBarX, healthBarY, fillWidth, healthBarHeight);
+        
+        // Health bar border
         g2.setColor(Color.WHITE);
-        g2.setFont(new Font("Arial", Font.BOLD, 16));
-        g2.drawString("Health: " + player.getHealth(), 20, 30);
+        g2.drawRect(healthBarX, healthBarY, healthBarWidth, healthBarHeight);
         
-        // Draw score
-        g2.drawString("Score: " + score, width - 150, 30);
+        // Draw health text
+        g2.setFont(arcadeFontSmall);
+        g2.drawString("HEALTH: " + player.getHealth(), healthBarX + healthBarWidth + 10, healthBarY + healthBarHeight);
         
-        // Draw level
-        g2.drawString("Level: " + level, width / 2 - 30, 30);
+        // Draw score with glow effect
+        g2.setFont(arcadeFont);
+        String scoreText = "SCORE: " + score;
+        drawTextWithGlow(g2, scoreText, width - 200, 30, Color.WHITE, Color.ORANGE);
         
-        // Draw level progress
-        g2.drawString("Progress: " + destroyedAsteroidsCount + "/" + asteroidsToNextLevel, width / 2 - 50, 50);
+        // Draw level with glow effect
+        String levelText = "LEVEL: " + level;
+        drawTextWithGlow(g2, levelText, width / 2 - 50, 30, Color.WHITE, Color.GREEN);
         
-        // Draw active particles count (debug info)
-        g2.setFont(new Font("Arial", Font.PLAIN, 12));
-        g2.drawString("Particles: " + particleSystem.getParticleCount(), width - 150, 50);
+        // Draw level progress bar
+        int progressBarWidth = 200;
+        int progressBarHeight = 10;
+        int progressBarX = width / 2 - progressBarWidth / 2;
+        int progressBarY = 40;
+        
+        // Progress bar background
+        g2.setColor(new Color(50, 50, 50, 200));
+        g2.fillRect(progressBarX, progressBarY, progressBarWidth, progressBarHeight);
+        
+        // Progress bar fill
+        float progressPercent = (float)destroyedAsteroidsCount / asteroidsToNextLevel;
+        int progressFillWidth = (int)(progressBarWidth * progressPercent);
+        
+        g2.setColor(new Color(0, 200, 100));
+        g2.fillRect(progressBarX, progressBarY, progressFillWidth, progressBarHeight);
+        
+        // Progress bar border
+        g2.setColor(Color.WHITE);
+        g2.drawRect(progressBarX, progressBarY, progressBarWidth, progressBarHeight);
+        
+        // Draw active power-ups indicator
+        drawActivePowerUps();
     }
     
+    private void drawActivePowerUps() {
+        // Draw active power-ups at the bottom of the screen
+        int iconSize = 32;
+        int spacing = 10;
+        int startX = 20;
+        int startY = height - iconSize - 20;
+        
+        g2.setFont(arcadeFontSmall);
+        g2.setColor(Color.WHITE);
+        g2.drawString("ACTIVE POWER-UPS:", startX, startY - 5);
+        
+        // Draw power-up icons based on player's active power-ups
+        int x = startX;
+        
+        if (player.hasActiveShield()) {
+            g2.drawImage(new ImageIcon("src/game/resource/img/powerups/Box_Item_3.png").getImage(), 
+                        x, startY, iconSize, iconSize, null);
+            x += iconSize + spacing;
+        }
+        
+        if (player.hasRapidFire()) {
+            g2.drawImage(new ImageIcon("src/game/resource/img/powerups/Box_Item_11.png").getImage(), 
+                        x, startY, iconSize, iconSize, null);
+            x += iconSize + spacing;
+        }
+        
+        if (player.hasTripleShot()) {
+            g2.drawImage(new ImageIcon("src/game/resource/img/powerups/Box_Item_8.png").getImage(), 
+                        x, startY, iconSize, iconSize, null);
+        }
+    }
+
     private void drawGameOver() {
         g2.setColor(new Color(0, 0, 0, 180)); // Semi-transparent black
         g2.fillRect(0, 0, width, height);
         
-        g2.setColor(Color.RED);
-        g2.setFont(new Font("Arial", Font.BOLD, 48));
+        // Draw game over text with arcade style and glow
+        g2.setFont(arcadeFontLarge);
         String gameOverText = "GAME OVER";
         FontMetrics fm = g2.getFontMetrics();
         int textWidth = fm.stringWidth(gameOverText);
-        g2.drawString(gameOverText, width / 2 - textWidth / 2, height / 2 - 50);
         
-        g2.setColor(Color.WHITE);
-        g2.setFont(new Font("Arial", Font.BOLD, 24));
-        String scoreText = "Final Score: " + score;
+        drawTextWithGlow(g2, gameOverText, width / 2 - textWidth / 2, height / 2 - 50, Color.WHITE, Color.RED);
+        
+        // Draw score and level
+        g2.setFont(arcadeFont);
+        String scoreText = "FINAL SCORE: " + score;
         textWidth = g2.getFontMetrics().stringWidth(scoreText);
         g2.drawString(scoreText, width / 2 - textWidth / 2, height / 2);
         
-        String levelText = "Level Reached: " + level;
+        String levelText = "LEVEL REACHED: " + level;
         textWidth = g2.getFontMetrics().stringWidth(levelText);
         g2.drawString(levelText, width / 2 - textWidth / 2, height / 2 + 30);
         
         // Show restart option after delay
         if (System.currentTimeMillis() - gameOverTime > RESTART_DELAY) {
-            g2.setFont(new Font("Arial", Font.BOLD, 20));
-            String restartText = "Press SPACE to restart";
+            g2.setFont(arcadeFont);
+            String restartText = "PRESS SPACE TO RESTART";
             textWidth = g2.getFontMetrics().stringWidth(restartText);
-            g2.drawString(restartText, width / 2 - textWidth / 2, height / 2 + 80);
+            
+            // Make the text pulse
+            long time = System.currentTimeMillis();
+            float pulse = (float)Math.sin(time / 200.0) * 0.2f + 0.8f;
+            Color pulseColor = new Color(1.0f, pulse, pulse);
+            
+            drawTextWithGlow(g2, restartText, width / 2 - textWidth / 2, height / 2 + 80, pulseColor, Color.RED);
         }
     }
-    
+
     private void restartGame() {
         // Reset game state
         score = 0;

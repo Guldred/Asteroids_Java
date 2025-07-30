@@ -4,6 +4,7 @@ import game.component.GameCore;
 import game.component.Updateable;
 import game.component.Vector2;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
@@ -21,21 +22,22 @@ public class PowerUp extends Updateable {
     
     private Vector2 position;
     private Vector2 velocity;
-    private final int SIZE = 20;
+    private final int SIZE = 32; // Increased size for better visibility
     private final PowerUpType type;
-    private final Color color;
+    private final Color color; // Keep color for particle effects
     private boolean collected = false;
     private long creationTime;
     private final long LIFETIME = 10000; // 10 seconds lifetime
     private float angle = 0;
     private float rotationSpeed;
+    private Image image;
     
     public PowerUp(Vector2 position, PowerUpType type) {
         super();
         this.position = new Vector2(position);
         this.type = type;
         
-        // Set color based on type
+        // Set color based on type (for particles and effects)
         switch (type) {
             case HEALTH:
                 this.color = Color.GREEN;
@@ -53,6 +55,9 @@ public class PowerUp extends Updateable {
                 this.color = Color.WHITE;
         }
         
+        // Load appropriate image based on type
+        loadImage();
+        
         // Random slow movement
         Random random = new Random();
         this.velocity = new Vector2(
@@ -64,6 +69,30 @@ public class PowerUp extends Updateable {
         this.creationTime = System.currentTimeMillis();
         
         startUpdate();
+    }
+    
+    private void loadImage() {
+        String imagePath;
+        
+        // Select appropriate image based on power-up type
+        switch (type) {
+            case HEALTH:
+                imagePath = "src/game/resource/img/powerups/Box_Item_1.png"; // Green health box
+                break;
+            case SHIELD:
+                imagePath = "src/game/resource/img/powerups/Box_Item_3.png"; // Blue shield box
+                break;
+            case RAPID_FIRE:
+                imagePath = "src/game/resource/img/powerups/Box_Item_11.png"; // Yellow speed box
+                break;
+            case TRIPLE_SHOT:
+                imagePath = "src/game/resource/img/powerups/Box_Item_8.png"; // Purple triple box
+                break;
+            default:
+                imagePath = "src/game/resource/img/powerups/Box_Item_0.png"; // Default box
+        }
+        
+        this.image = new ImageIcon(imagePath).getImage();
     }
     
     @Override
@@ -88,10 +117,12 @@ public class PowerUp extends Updateable {
         
         if (elapsedTime > LIFETIME * 0.7f) {
             alpha = 1.0f - ((elapsedTime - LIFETIME * 0.7f) / (LIFETIME * 0.3f));
+            // Clamp alpha to valid range [0.0, 1.0]
+            alpha = Math.max(0.0f, Math.min(1.0f, alpha));
         }
         
         // Pulsate size based on time
-        float pulseFactor = (float) (1.0 + 0.2 * Math.sin(elapsedTime / 200.0));
+        float pulseFactor = (float) (1.0 + 0.1 * Math.sin(elapsedTime / 200.0));
         int pulseSize = (int) (SIZE * pulseFactor);
         
         // Save original transform
@@ -101,47 +132,53 @@ public class PowerUp extends Updateable {
         g2.translate(position.x, position.y);
         g2.rotate(Math.toRadians(angle), SIZE / 2, SIZE / 2);
         
-        // Draw power-up
-        Color drawColor = new Color(
-            color.getRed(), 
-            color.getGreen(), 
-            color.getBlue(), 
-            (int) (255 * alpha)
-        );
-        g2.setColor(drawColor);
-        
-        // Draw outer circle
-        g2.fillOval(0, 0, pulseSize, pulseSize);
-        
-        // Draw inner symbol based on type
-        g2.setColor(Color.WHITE);
-        switch (type) {
-            case HEALTH:
-                // Draw plus sign
-                g2.fillRect(pulseSize / 4, pulseSize / 2 - pulseSize / 10, pulseSize / 2, pulseSize / 5);
-                g2.fillRect(pulseSize / 2 - pulseSize / 10, pulseSize / 4, pulseSize / 5, pulseSize / 2);
-                break;
-            case SHIELD:
-                // Draw shield symbol
-                g2.drawOval(pulseSize / 4, pulseSize / 4, pulseSize / 2, pulseSize / 2);
-                break;
-            case RAPID_FIRE:
-                // Draw lightning bolt
-                int[] xPoints = {pulseSize / 4, pulseSize / 2, pulseSize / 3, pulseSize * 3 / 4};
-                int[] yPoints = {pulseSize / 4, pulseSize / 2, pulseSize / 2, pulseSize * 3 / 4};
-                g2.fillPolygon(xPoints, yPoints, 4);
-                break;
-            case TRIPLE_SHOT:
-                // Draw three dots
-                int dotSize = pulseSize / 6;
-                g2.fillOval(pulseSize / 2 - dotSize / 2, pulseSize / 4, dotSize, dotSize);
-                g2.fillOval(pulseSize / 3 - dotSize / 2, pulseSize * 2 / 3, dotSize, dotSize);
-                g2.fillOval(pulseSize * 2 / 3 - dotSize / 2, pulseSize * 2 / 3, dotSize, dotSize);
-                break;
+        // Set alpha composite for fading effect
+        Composite oldComposite = g2.getComposite();
+        if (alpha < 1.0f) {
+            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
         }
+        
+        // Draw the power-up image
+        g2.drawImage(image, 0, 0, pulseSize, pulseSize, null);
+        
+        // Restore original composite
+        g2.setComposite(oldComposite);
         
         // Restore original transform
         g2.setTransform(oldTransform);
+        
+        // Draw a subtle glow effect around the power-up
+        drawGlowEffect(g2, alpha);
+    }
+    
+    private void drawGlowEffect(Graphics2D g2, float alpha) {
+        // Create a soft glow around the power-up
+        int glowSize = SIZE + 10;
+        int glowX = (int)position.x - 5;
+        int glowY = (int)position.y - 5;
+        
+        // Ensure alpha is in valid range [0.0, 1.0]
+        alpha = Math.max(0.0f, Math.min(1.0f, alpha));
+        
+        // Set a radial gradient paint for the glow
+        RadialGradientPaint paint = new RadialGradientPaint(
+            position.x + SIZE/2, position.y + SIZE/2, glowSize/2,
+            new float[] {0.0f, 1.0f},
+            new Color[] {
+                new Color(color.getRed(), color.getGreen(), color.getBlue(), (int)(100 * alpha)),
+                new Color(color.getRed(), color.getGreen(), color.getBlue(), 0)
+            }
+        );
+        
+        // Draw the glow
+        Composite oldComposite = g2.getComposite();
+        // Ensure alpha is in valid range [0.0, 1.0]
+        float glowAlpha = 0.5f * alpha;
+        glowAlpha = Math.max(0.0f, Math.min(1.0f, glowAlpha));
+        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, glowAlpha));
+        g2.setPaint(paint);
+        g2.fillOval(glowX, glowY, glowSize, glowSize);
+        g2.setComposite(oldComposite);
     }
     
     public Area getCollisionShape() {
@@ -166,6 +203,14 @@ public class PowerUp extends Updateable {
     
     public boolean isExpired() {
         return System.currentTimeMillis() - creationTime > LIFETIME;
+    }
+    
+    public Vector2 getPosition() {
+        return position;
+    }
+    
+    public Color getColor() {
+        return color;
     }
     
     private void checkOutOfBounds() {

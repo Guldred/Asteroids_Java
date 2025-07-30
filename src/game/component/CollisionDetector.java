@@ -49,6 +49,9 @@ public class CollisionDetector {
         int destroyedCount = 0;
         
         for (int i = projectiles.size() - 1; i >= 0; i--) {
+            // Check if index is still valid (projectiles list might have been modified)
+            if (i >= projectiles.size()) continue;
+            
             Projectile projectile = projectiles.get(i);
             if (projectile == null) continue;
             
@@ -78,7 +81,10 @@ public class CollisionDetector {
                 if (hitDetected) {
                     // Remove the entire triple shot if any part hits
                     projectile.stop();
-                    projectiles.remove(i);
+                    // Check if index is still valid before removing
+                    if (i < projectiles.size()) {
+                        projectiles.remove(i);
+                    }
                 }
             } else {
                 // Normal projectile handling
@@ -90,7 +96,10 @@ public class CollisionDetector {
                         
                         // Remove projectile
                         projectile.stop();
-                        projectiles.remove(i);
+                        // Check if index is still valid before removing
+                        if (i < projectiles.size()) {
+                            projectiles.remove(i);
+                        }
                         break; // Projectile can only hit one asteroid
                     }
                 }
