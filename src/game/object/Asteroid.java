@@ -24,6 +24,7 @@ public class Asteroid extends Updateable {
     private final Area shape;
     private float wallBounceFactor;
     private final float MAX_SPEED;
+    private boolean destroyed = false;
 
     public Asteroid(Vector2 position, Vector2 velocity, int size) {
         super();
@@ -65,6 +66,8 @@ public class Asteroid extends Updateable {
     }
 
     public void draw(Graphics2D g2) {
+        if (destroyed) return;
+        
         AffineTransform oldTransform = g2.getTransform();
         g2.translate(position.x, position.y);
         AffineTransform t = new AffineTransform();
@@ -97,5 +100,27 @@ public class Asteroid extends Updateable {
         } else if (position.y + SIZE + 30 > GameCore.screenSize.y) {
             velocity.y = Math.max((Math.abs(velocity.y) * -1 * wallBounceFactor), -MAX_SPEED);
         }
+    }
+    
+    public boolean isDestroyed() {
+        return destroyed;
+    }
+    
+    public void destroy() {
+        this.destroyed = true;
+        // Stop the update loop by setting start to false
+        this.start = false;
+    }
+    
+    public int getSize() {
+        return SIZE;
+    }
+    
+    public Vector2 getPosition() {
+        return position;
+    }
+    
+    public Vector2 getVelocity() {
+        return velocity;
     }
 }
