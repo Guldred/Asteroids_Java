@@ -288,6 +288,10 @@ public class Player extends Updateable {
         tripleShotActive = false;
     }
     
+    public boolean isInvulnerable() {
+        return invulnerable;
+    }
+    
     public void activatePowerUp(PowerUp.PowerUpType type) {
         long currentTime = System.currentTimeMillis();
         

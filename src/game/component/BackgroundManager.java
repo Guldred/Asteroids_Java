@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.awt.geom.AffineTransform;
 
 public class BackgroundManager {
     private List<ParallaxLayer> layers;
@@ -77,17 +78,17 @@ public class BackgroundManager {
                 BufferedImage baseImage = ImageIO.read(files[0]);
                 layers.add(new ParallaxLayer(baseImage, 0, 0, 0.0f, 0.0f)); // Static background
                 
-                // Add additional layers with parallax effect
+                // Add additional layers with stronger parallax effect for visibility
                 if (files.length > 1) {
                     // Second image as slow-moving middle layer
                     BufferedImage midImage = ImageIO.read(files[1]);
-                    layers.add(new ParallaxLayer(midImage, 0, 0, 0.1f, 0.05f));
+                    layers.add(new ParallaxLayer(midImage, 0, 0, 0.35f, 0.20f));
                 }
                 
                 if (files.length > 2) {
                     // Third image as faster-moving foreground layer
                     BufferedImage foreImage = ImageIO.read(files[2]);
-                    layers.add(new ParallaxLayer(foreImage, 0, 0, 0.2f, 0.1f));
+                    layers.add(new ParallaxLayer(foreImage, 0, 0, 0.70f, 0.40f));
                 }
                 
             } catch (IOException e) {
@@ -197,9 +198,10 @@ public class BackgroundManager {
             // Draw the tiled background with proper offsets
             for (int y = -1; y < tilesY; y++) {
                 for (int x = -1; x < tilesX; x++) {
-                    int drawX = (int) (x * imgWidth - offsetX);
-                    int drawY = (int) (y * imgHeight - offsetY);
-                    g2.drawImage(image, drawX, drawY, null);
+                    float drawX = (float) (x * imgWidth - offsetX);
+                    float drawY = (float) (y * imgHeight - offsetY);
+                    AffineTransform at = AffineTransform.getTranslateInstance(drawX, drawY);
+                    g2.drawImage(image, at, null);
                 }
             }
         }

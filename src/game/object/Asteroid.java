@@ -25,6 +25,7 @@ public class Asteroid extends Updateable {
     private float wallBounceFactor;
     private final float MAX_SPEED;
     private boolean destroyed = false;
+    private boolean splitProcessed = false; // to ensure we only split once
 
     public Asteroid(Vector2 position, Vector2 velocity, int size) {
         super();
@@ -53,8 +54,9 @@ public class Asteroid extends Updateable {
         }
         
         this.shape = createShape();
-        this.wallBounceFactor = 1.2f;
-        this.MAX_SPEED = (float) (Math.random() * 10 + 1);
+        this.wallBounceFactor = 1.1f;
+        // Lower overall asteroid max speed to keep gameplay fair
+        this.MAX_SPEED = (float) (2.0 + Math.random() * 2.0); // 2.0 - 4.0 px/frame cap when bouncing
 
         startUpdate();
     }
@@ -170,4 +172,8 @@ public class Asteroid extends Updateable {
     public Vector2 getVelocity() {
         return velocity;
     }
+
+    // Split helpers
+    public boolean isSplitProcessed() { return splitProcessed; }
+    public void markSplitProcessed() { this.splitProcessed = true; }
 }

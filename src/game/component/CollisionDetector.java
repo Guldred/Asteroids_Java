@@ -45,7 +45,7 @@ public class CollisionDetector {
         return asteroidShape.intersects(playerBounds);
     }
     
-    public static int handleProjectileAsteroidCollisions(List<Projectile> projectiles, List<Asteroid> asteroids) {
+    public static int handleProjectileAsteroidCollisions(List<Projectile> projectiles, List<Asteroid> asteroids, AsteroidManager asteroidManager) {
         int destroyedCount = 0;
         
         for (int i = projectiles.size() - 1; i >= 0; i--) {
@@ -66,7 +66,13 @@ public class CollisionDetector {
                 for (Projectile subProjectile : subProjectiles) {
                     for (Asteroid asteroid : asteroids) {
                         if (!asteroid.isDestroyed() && checkCollision(subProjectile, asteroid)) {
-                            // Destroy asteroid
+                            // Split larger asteroids once, then destroy
+                            if (!asteroid.isSplitProcessed() && asteroid.getSize() > 32) {
+                                asteroid.markSplitProcessed();
+                                if (asteroidManager != null) {
+                                    asteroidManager.splitAsteroid(asteroid);
+                                }
+                            }
                             asteroid.destroy();
                             destroyedCount++;
                             
@@ -90,7 +96,13 @@ public class CollisionDetector {
                 // Normal projectile handling
                 for (Asteroid asteroid : asteroids) {
                     if (checkCollision(projectile, asteroid)) {
-                        // Destroy asteroid
+                        // Split larger asteroids once, then destroy
+                        if (!asteroid.isSplitProcessed() && asteroid.getSize() > 32) {
+                            asteroid.markSplitProcessed();
+                            if (asteroidManager != null) {
+                                asteroidManager.splitAsteroid(asteroid);
+                            }
+                        }
                         asteroid.destroy();
                         destroyedCount++;
                         
@@ -109,9 +121,21 @@ public class CollisionDetector {
         return destroyedCount;
     }
     
-    public static boolean handlePlayerAsteroidCollisions(Player player, List<Asteroid> asteroids) {
+    public static boolean handlePlayerAsteroidCollisions(Player player, List<Asteroid> asteroids, AsteroidManager asteroidManager) {
+        // If player is invulnerable, ignore collisions entirely
+        if (player.isInvulnerable()) {
+            return false;
+        }
         for (Asteroid asteroid : asteroids) {
             if (checkCollision(player, asteroid)) {
+                // Make asteroid behave like it was shot: split (if applicable) and destroy
+                if (!asteroid.isSplitProcessed() && asteroid.getSize() > 32) {
+                    asteroid.markSplitProcessed();
+                    if (asteroidManager != null) {
+                        asteroidManager.splitAsteroid(asteroid);
+                    }
+                }
+                asteroid.destroy();
                 return true; // Player hit
             }
         }

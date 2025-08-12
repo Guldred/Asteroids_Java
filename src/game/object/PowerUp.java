@@ -77,7 +77,7 @@ public class PowerUp extends Updateable {
         // Select appropriate image based on power-up type
         switch (type) {
             case HEALTH:
-                imagePath = "src/game/resource/img/powerups/Box_Item_1.png"; // Green health box
+                imagePath = "src/game/resource/img/powerups/Item_Powerup_Heart_2.png"; // Heart for health
                 break;
             case SHIELD:
                 imagePath = "src/game/resource/img/powerups/Box_Item_3.png"; // Blue shield box
@@ -86,7 +86,7 @@ public class PowerUp extends Updateable {
                 imagePath = "src/game/resource/img/powerups/Box_Item_11.png"; // Yellow speed box
                 break;
             case TRIPLE_SHOT:
-                imagePath = "src/game/resource/img/powerups/Box_Item_8.png"; // Purple triple box
+                imagePath = "src/game/resource/img/powerups/Item_Powerup_Weapon_4.png"; // Weapon icon for multi-shot
                 break;
             default:
                 imagePath = "src/game/resource/img/powerups/Box_Item_0.png"; // Default box

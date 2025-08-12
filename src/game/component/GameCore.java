@@ -66,6 +66,11 @@ public class GameCore extends JComponent{
     private int asteroidsToNextLevel = 10;
     private int destroyedAsteroidsCount = 0;
     
+    // Shooting control
+    private boolean mouseDown = false;
+    private long lastShotTime = 0L;
+    private long baseFireIntervalMs = 250L; // 4 shots per second
+    
     // Game states
     public enum GameState {
         MENU,
@@ -105,6 +110,37 @@ public class GameCore extends JComponent{
             arcadeFontLarge = new Font("Arial", Font.BOLD, 48);
             arcadeFontSmall = new Font("Arial", Font.BOLD, 16);
         }
+
+        // Ensure music and sounds stop when the window/app closes
+        try {
+            this.window.addWindowListener(new java.awt.event.WindowAdapter() {
+                @Override
+                public void windowClosing(java.awt.event.WindowEvent e) {
+                    try {
+                        soundManager.stopMusic();
+                        soundManager.stopAllSounds();
+                    } catch (Exception ignored) {}
+                }
+
+                @Override
+                public void windowClosed(java.awt.event.WindowEvent e) {
+                    try {
+                        soundManager.stopMusic();
+                        soundManager.stopAllSounds();
+                    } catch (Exception ignored) {}
+                }
+            });
+        } catch (Exception ignored) {}
+
+        // Extra safety: stop audio on JVM shutdown
+        try {
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                try {
+                    SoundManager.getInstance().stopMusic();
+                    SoundManager.getInstance().stopAllSounds();
+                } catch (Exception ignoredInner) {}
+            }, "AudioShutdownHook"));
+        } catch (Exception ignored) {}
     }
 
     public void start() {
@@ -122,6 +158,13 @@ public class GameCore extends JComponent{
         // Start with a random background theme
         BackgroundManager.BackgroundTheme[] themes = BackgroundManager.BackgroundTheme.values();
         backgroundManager.setTheme(themes[new Random().nextInt(themes.length)]);
+        
+        // Start title music in menu
+        try {
+            soundManager.playMusic("title", true, 0.1f);
+        } catch (Exception e) {
+            System.err.println("Could not start title music: " + e.getMessage());
+        }
 
         thread = new Thread(() -> {
             long frameStartTime = 0;
@@ -196,6 +239,12 @@ public class GameCore extends JComponent{
             currentState = GameState.GAME_OVER;
             gameOverTime = System.currentTimeMillis();
             soundManager.playSound("gameover");
+            // Bring back title music on game over
+            try {
+                soundManager.playMusic("title", true, 0.1f);
+            } catch (Exception e) {
+                System.err.println("Could not start title music on game over: " + e.getMessage());
+            }
             return;
         }
         
@@ -211,11 +260,16 @@ public class GameCore extends JComponent{
         // Update power-up manager
         powerUpManager.update();
         
-        // Update background with parallax effect based on player velocity
-        updateBackground(player.getVelocity().x * 0.01f, player.getVelocity().y * 0.01f);
+        // Update background with stronger parallax effect based on player velocity
+        updateBackground(player.getVelocity().x * 0.02f, player.getVelocity().y * 0.02f);
+        
+        // Auto-fire while mouse held, respect fire rate and power-ups
+        if (mouseDown) {
+            attemptShoot();
+        }
         
         // Handle collisions
-        int destroyedAsteroids = CollisionDetector.handleProjectileAsteroidCollisions(projectiles, asteroids);
+        int destroyedAsteroids = CollisionDetector.handleProjectileAsteroidCollisions(projectiles, asteroids, asteroidManager);
         
         // Update level progress
         if (destroyedAsteroids > 0) {
@@ -224,7 +278,7 @@ public class GameCore extends JComponent{
             // Play explosion sound for each destroyed asteroid
             for (int i = 0; i < destroyedAsteroids; i++) {
                 // Vary the volume slightly for each explosion to create a more natural sound
-                float volume = 0.7f + (float)(Math.random() * 0.3f);
+                float volume = 0.2f + (float)(Math.random() * 0.3f);
                 soundManager.playSoundWithVolume("explosion", volume);
             }
             
@@ -255,15 +309,17 @@ public class GameCore extends JComponent{
         score += destroyedAsteroids * 100; // 100 points per asteroid
         
         // Check for player-asteroid collisions
-        if (CollisionDetector.handlePlayerAsteroidCollisions(player, asteroids)) {
-            player.takeDamage(10); // Player takes damage when hit by asteroid
+        if (CollisionDetector.handlePlayerAsteroidCollisions(player, asteroids, asteroidManager)) {
+            boolean wasInvulnerable = player.isInvulnerable();
+            player.takeDamage(10); // Player takes damage when hit by asteroid (no-op if invulnerable)
             
-            // Play hit sound
-            soundManager.playSound("hit");
-            
-            // Start screen shake
-            screenShaking = true;
-            screenShakeStartTime = System.currentTimeMillis();
+            if (!wasInvulnerable) {
+                // Play hit sound only when damage actually applied
+                soundManager.playSound("hit");
+                // Start screen shake only when damage actually applied
+                screenShaking = true;
+                screenShakeStartTime = System.currentTimeMillis();
+            }
         }
         
         // Check for player-powerup collisions
@@ -318,6 +374,16 @@ public class GameCore extends JComponent{
         // Increase max asteroids
         int newMaxAsteroids = Math.min(MAX_ASTEROIDS + level, 20); // Cap at 20
         asteroidManager = new AsteroidManager(width, height, newMaxAsteroids);
+        // Fair-spawn settings for new level: short grace and bigger initial buffer
+        asteroidManager.setPlayer(player);
+        asteroidManager.setSafeSpawnDistance(220f);
+        asteroidManager.setInitialSpawnDistance(380f);
+        asteroidManager.setTelegraphDelayMs(600);
+        asteroidManager.setArcBlockWidthDeg(80f);
+        asteroidManager.startLevelWindow(Math.max(800, 1600 - level * 100), Math.max(700, 1400 - level * 80));
+        // Difficulty scaling: faster asteroids and shorter spawn intervals as levels increase
+        asteroidManager.setSpeedMultiplier(1.0f + Math.min(1.0f, level * 0.12f));
+        asteroidManager.setSpawnInterval(Math.max(1200, 3000 - level * 150));
         
         // Spawn initial asteroids for new level
         asteroidManager.spawnInitialAsteroids(Math.min(INITIAL_ASTEROID_COUNT + level, 10)); // Cap at 10 initial
@@ -380,6 +446,11 @@ public class GameCore extends JComponent{
         
         // Reset transform after drawing game elements
         g2.setTransform(originalTransform);
+        
+        // Draw spawn telegraphs (not affected by screen shake)
+        if (asteroidManager != null) {
+            asteroidManager.drawTelegraphs(g2);
+        }
         
         // Draw power-ups (not affected by screen shake)
         powerUpManager.draw(g2);
@@ -678,8 +749,17 @@ public class GameCore extends JComponent{
         // Clear projectiles
         projectiles.clear();
         
-        // Reset asteroid manager
+        // Reset asteroid manager with fair-spawn settings
         asteroidManager = new AsteroidManager(width, height, MAX_ASTEROIDS);
+        asteroidManager.setPlayer(player);
+        asteroidManager.setSafeSpawnDistance(220f);
+        asteroidManager.setInitialSpawnDistance(360f);
+        asteroidManager.setTelegraphDelayMs(600);
+        asteroidManager.setArcBlockWidthDeg(80f);
+        asteroidManager.startLevelWindow(1500, 1200);
+        // Difficulty scaling for start/restart (use current level)
+        asteroidManager.setSpeedMultiplier(1.0f + Math.min(1.0f, level * 0.12f));
+        asteroidManager.setSpawnInterval(Math.max(1400, 3000 - level * 150));
         asteroidManager.spawnInitialAsteroids(INITIAL_ASTEROID_COUNT);
         asteroids = asteroidManager.getAsteroids();
         
@@ -717,6 +797,8 @@ public class GameCore extends JComponent{
                 
                 // Start game from menu
                 if (e.getKeyCode() == KeyEvent.VK_SPACE && currentState == GameState.MENU) {
+                    // Stop menu music and start gameplay
+                    soundManager.stopMusic();
                     currentState = GameState.PLAYING;
                 }
                 
@@ -749,13 +831,14 @@ public class GameCore extends JComponent{
             @Override
             public void mousePressed(MouseEvent e) {
                 if (currentState == GameState.PLAYING) {
-                    playerShoot(1);
-                    soundManager.playSound("shoot");
+                    mouseDown = true;
+                    // Immediate attempt on press
+                    attemptShoot();
                 }
             }
             @Override
             public void mouseReleased(MouseEvent e) {
-                //playerShoot(2);
+                mouseDown = false;
             }
         });
     }
@@ -769,8 +852,17 @@ public class GameCore extends JComponent{
         player.setPosition(new Vector2(width / 2 - (float)Player.PLAYER_DIMENSIONS / 2, 
                                       height / 2 - (float)Player.PLAYER_DIMENSIONS / 2));
         
-        // Initialize asteroid manager
+        // Initialize asteroid manager with fair-spawn settings
         asteroidManager = new AsteroidManager(width, height, MAX_ASTEROIDS);
+        asteroidManager.setPlayer(player);
+        asteroidManager.setSafeSpawnDistance(220f);
+        asteroidManager.setInitialSpawnDistance(360f);
+        asteroidManager.setTelegraphDelayMs(600);
+        asteroidManager.setArcBlockWidthDeg(80f);
+        asteroidManager.startLevelWindow(1500, 1200); // grace + forward-arc block when game starts
+        // Difficulty scaling at game start
+        asteroidManager.setSpeedMultiplier(1.0f + Math.min(1.0f, level * 0.12f));
+        asteroidManager.setSpawnInterval(Math.max(1400, 3000 - level * 150));
         asteroidManager.spawnInitialAsteroids(INITIAL_ASTEROID_COUNT);
         asteroids = asteroidManager.getAsteroids();
         
@@ -818,6 +910,23 @@ public class GameCore extends JComponent{
 
     public void playerShoot(int weapon) {
         projectiles.add(player.shoot(weapon));
+    }
+    
+    private long currentFireInterval() {
+        // Faster when rapid fire power-up active
+        if (player.hasRapidFire()) {
+            return Math.max(100L, (long)(baseFireIntervalMs * 0.5));
+        }
+        return baseFireIntervalMs;
+    }
+    
+    private void attemptShoot() {
+        long now = System.currentTimeMillis();
+        if (now - lastShotTime >= currentFireInterval()) {
+            playerShoot(1);
+            soundManager.playSound("shoot");
+            lastShotTime = now;
+        }
     }
 
     private void sleep(long t) {
