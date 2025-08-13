@@ -4,8 +4,31 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8cb6bc53-2f9d-4061-b2bf-a3add0362599" name="Changes" comment="Added features">
+    <list default="true" id="8cb6bc53-2f9d-4061-b2bf-a3add0362599" name="Changes" comment="Added some features">
+      <change afterPath="$PROJECT_DIR$/models_fast/best_genome.bin" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/models_fast/gen_000.bin" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/models_fast/gen_001.bin" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/models_fast/gen_002.bin" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/models_fast/gen_003.bin" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/models_fast/gen_004.bin" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/models_fast/gen_005.bin" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/models_fast/gen_006.bin" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/models_fast/gen_007.bin" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/readme.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/game/ai/Agent.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/game/ai/AgentInput.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/game/ai/NNAgent.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/game/ai/RandomAgent.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/game/nn/Activation.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/game/nn/DenseLayer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/game/nn/Network.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/game/train/GAConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/game/train/GATrainer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/game/train/Genome.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/game/train/TrainerMain.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/component/GameCore.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/component/GameCore.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/object/Player.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/object/Player.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -25,7 +48,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="ai/windsurf-v2" />
+        <entry key="$PROJECT_DIR$" value="master" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -63,12 +86,13 @@
     "Application.Main.executor": "Run",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
     "WebServerToolWindowFactoryState": "false",
-    "git-widget-placeholder": "master",
+    "git-widget-placeholder": "ai/add-neural-network",
     "junie.onboarding.icon.badge.shown": "true",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/Users/christian.malak/webdev_priv/Asteroids_Java/src/game/resource/img/powerups",
+    "last_opened_file_path": "/Users/christian.malak/webdev_priv/Asteroids_Java/src/game/resource/audio/sounds",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
@@ -77,11 +101,14 @@
     "project.structure.proportion": "0.0",
     "project.structure.side.proportion": "0.0",
     "settings.editor.selected.configurable": "com.codeium.AppSettingsConfigurable",
+    "to.speed.mode.migration.done": "true",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/game/resource/audio/sounds" />
+      <recent name="$PROJECT_DIR$/src/game/resource/audio/music" />
       <recent name="$PROJECT_DIR$/src/game/resource/img/powerups" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
@@ -115,8 +142,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-fbdcb00ec9e3-intellij.indexing.shared.core-IU-251.27812.49" />
-        <option value="bundled-js-predefined-d6986cc7102b-09060db00ec0-JavaScript-IU-251.27812.49" />
+        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.23892.409" />
+        <option value="bundled-js-predefined-d6986cc7102b-e03c56caf84a-JavaScript-IU-252.23892.409" />
       </set>
     </attachedChunks>
   </component>
@@ -140,6 +167,12 @@
       <workItem from="1753799261469" duration="2862000" />
       <workItem from="1753802144498" duration="201000" />
       <workItem from="1753802361268" duration="4100000" />
+      <workItem from="1754033672959" duration="913000" />
+      <workItem from="1754308408867" duration="888000" />
+      <workItem from="1754986647824" duration="2415000" />
+      <workItem from="1754989180038" duration="7587000" />
+      <workItem from="1755000621194" duration="616000" />
+      <workItem from="1755073547333" duration="8534000" />
     </task>
     <task id="LOCAL-00001" summary="Continue Dev with local Qwen Coder 3">
       <option name="closed" value="true" />
@@ -205,7 +238,15 @@
       <option name="project" value="LOCAL" />
       <updated>1753866012709</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Added some features">
+      <option name="closed" value="true" />
+      <created>1754998979858</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1754998979858</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -232,7 +273,8 @@
     <MESSAGE value="Claude 3.7" />
     <MESSAGE value="Fixed background" />
     <MESSAGE value="Added features" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added features" />
+    <MESSAGE value="Added some features" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added some features" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

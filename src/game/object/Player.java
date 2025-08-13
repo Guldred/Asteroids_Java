@@ -2,6 +2,7 @@ package game.object;
 
 import game.component.*;
 import game.object.projectiles.*;
+import game.ai.AgentInput;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,6 +20,11 @@ public class Player extends Updateable {
     private float wallBounceFactor;
     PlayerInput playerInput;
     JFrame window;
+    
+    // Agent control
+    private boolean agentControl = false;
+    private volatile AgentInput agentInput;
+    private boolean updateStarted = false;
     
     // Health system
     private int maxHealth = 100;
@@ -51,15 +57,59 @@ public class Player extends Updateable {
         this.playerImage = new ImageIcon("src/game/resource/img/spaceship_brown_default_turned.png").getImage();
         this.playerInput = new PlayerInput();
         this.wallBounceFactor = 0.6f;
-        super.startUpdate();
+        // startUpdate will be called after initial position is set by GameCore
+    }
+
+    private void applyAgentControls(float deltaTime) {
+        AgentInput ai = this.agentInput;
+        if (ai != null) {
+            // Rotation via angle delta (degrees per tick)
+            this.playerViewAngle += ai.angleDelta;
+            if (this.playerViewAngle < 0) this.playerViewAngle += 360f;
+            if (this.playerViewAngle >= 360f) this.playerViewAngle -= 360f;
+
+            // Movement mapped to existing accelerate directions
+            if (ai.thrustForward) {
+                accelerate(0, deltaTime);
+            }
+            if (ai.strafeRight) {
+                accelerate(60, deltaTime);
+            }
+            if (ai.thrustBack) {
+                accelerate(180, deltaTime);
+            }
+            if (ai.strafeLeft) {
+                accelerate(300, deltaTime);
+            }
+        }
+    }
+
+    public void setAgentControl(boolean enabled) {
+        this.agentControl = enabled;
+    }
+
+    public void setAgentInput(AgentInput input) {
+        this.agentInput = input;
+    }
+
+    // Call after initial position is set
+    public void begin() {
+        if (!updateStarted) {
+            updateStarted = true;
+            super.startUpdate();
+        }
     }
 
 
     @Override
     public void onUpdate(float deltaTime) {
-        this.getInput(deltaTime);
+        if (agentControl) {
+            applyAgentControls(deltaTime);
+        } else {
+            this.getInput(deltaTime);
+            this.turnToCursor();
+        }
         this.updatePos(deltaTime);
-        this.turnToCursor();
         
         // Update invulnerability
         if (invulnerable && System.currentTimeMillis() - invulnerabilityTime > INVULNERABILITY_DURATION) {
@@ -196,6 +246,9 @@ public class Player extends Updateable {
     }
 
     public void turnToCursor() {
+        if (window == null || !window.isShowing()) {
+            return;
+        }
         setAngle(calcAngleFromPoints(getCenter(), playerInput.getMousePositionInGame(window)));
     }
 
@@ -214,6 +267,7 @@ public class Player extends Updateable {
     }
 
     public void updatePos(float deltaTime) {
+        if (position == null) return;
         checkOutOfBounds();
         position.x += velocity.x * deltaTime;
         position.y += velocity.y * deltaTime;
@@ -237,6 +291,7 @@ public class Player extends Updateable {
     }
 
     public void checkOutOfBounds() {
+        if (position == null) return;
         if (position.x < 0) {
             velocity.x = Math.abs(velocity.x) * wallBounceFactor;
         } else if (position.x + PLAYER_DIMENSIONS > GameCore.screenSize.x) {

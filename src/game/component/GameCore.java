@@ -5,6 +5,10 @@ import game.object.Player;
 import game.object.PowerUp;
 import game.object.projectiles.Projectile;
 import game.object.projectiles.TripleShot;
+import game.ai.Agent;
+import game.ai.AgentInput;
+import game.ai.NNAgent;
+import game.nn.Network;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,6 +16,7 @@ import java.awt.event.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -34,6 +39,7 @@ public class GameCore extends JComponent{
     private PowerUpManager powerUpManager;
     private SoundManager soundManager;
     private BackgroundManager backgroundManager;
+    private boolean headless = false;
 
     public static Vector2 screenSize;
 
@@ -44,6 +50,11 @@ public class GameCore extends JComponent{
     // Game Objects
     private Player player;
     private PlayerInput playerInput;
+    
+    // Agent control
+    private boolean agentMode = false;
+    private Agent agent;
+    private AgentInput agentInput;
     
     // Game settings
     private final int INITIAL_ASTEROID_COUNT = 5;
@@ -77,6 +88,16 @@ public class GameCore extends JComponent{
         PLAYING,
         PAUSED,
         GAME_OVER
+    }
+
+    private boolean loadModel(String path) {
+        game.train.Genome g = game.train.GATrainer.loadGenome(path);
+        if (g == null) return false;
+        if (agent instanceof game.ai.NNAgent nn) {
+            nn.setParams(g.params);
+            return true;
+        }
+        return false;
     }
     
     private GameState currentState = GameState.MENU;
@@ -143,6 +164,11 @@ public class GameCore extends JComponent{
         } catch (Exception ignored) {}
     }
 
+    // Demo model loading state
+    private String modelDir = "models_fast"; // toggle with D between models_fast and models
+    private int demoGenIndex = 0;
+    private String currentModelLabel = "untrained";
+
     public void start() {
         width = getWidth();
         height = getHeight();
@@ -180,6 +206,21 @@ public class GameCore extends JComponent{
             }
         });
         thread.start();
+    }
+
+    // Headless startup for training/evaluation
+    public void startHeadless(int width, int height) {
+        this.headless = true;
+        this.width = width;
+        this.height = height;
+        initGFX();
+        initGameObjects();
+        initProjectiles();
+        initStars();
+        backgroundManager = new BackgroundManager(width, height);
+        currentState = GameState.PLAYING;
+        // Ensure agent control flag applied to player
+        if (player != null) player.setAgentControl(agentMode);
     }
     
     private void initStars() {
@@ -263,9 +304,23 @@ public class GameCore extends JComponent{
         // Update background with stronger parallax effect based on player velocity
         updateBackground(player.getVelocity().x * 0.02f, player.getVelocity().y * 0.02f);
         
-        // Auto-fire while mouse held, respect fire rate and power-ups
-        if (mouseDown) {
-            attemptShoot();
+        // Agent decision and control
+        if (agentMode) {
+            float[] state = buildAgentState();
+            agentInput = (agent != null) ? agent.decide(state) : null;
+            player.setAgentInput(agentInput);
+        }
+        
+        // Shooting control based on control source
+        if (agentMode) {
+            if (agentInput != null && agentInput.shoot) {
+                attemptShoot();
+            }
+        } else {
+            // Auto-fire while mouse held, respect fire rate and power-ups
+            if (mouseDown) {
+                attemptShoot();
+            }
         }
         
         // Handle collisions
@@ -407,6 +462,7 @@ public class GameCore extends JComponent{
     }
 
     private void draw() {
+        if (headless) return; // skip rendering in headless mode
         drawBackground();
         
         switch (currentState) {
@@ -551,6 +607,7 @@ public class GameCore extends JComponent{
     }
 
     private void render() {
+        if (headless) return;
         Graphics g = getGraphics();
         g.drawImage(image, 0, 0, null);
         g.dispose();
@@ -661,6 +718,19 @@ public class GameCore extends JComponent{
         
         // Draw active power-ups indicator
         drawActivePowerUps();
+        
+        // Draw level
+        g2.setFont(arcadeFont);
+        g2.setColor(Color.WHITE);
+        g2.drawString("LEVEL: " + level, 20, 60);
+
+        // Show current model label for demos
+        if (!headless) {
+            g2.setColor(Color.YELLOW);
+            g2.drawString("MODEL: " + currentModelLabel, 20, 80);
+            g2.setColor(Color.LIGHT_GRAY);
+            g2.drawString("[D] Dir: " + modelDir + "  [B] load best  [\"[\"/\"]\"] gen " + String.format("%03d", demoGenIndex), 20, 100);
+        }
     }
     
     private void drawActivePowerUps() {
@@ -732,7 +802,7 @@ public class GameCore extends JComponent{
         }
     }
 
-    private void restartGame() {
+    public void restartGame() {
         // Reset game state
         score = 0;
         gameOver = false;
@@ -745,6 +815,8 @@ public class GameCore extends JComponent{
         player.reset();
         player.setPosition(new Vector2(width / 2 - (float)Player.PLAYER_DIMENSIONS / 2, 
                                       height / 2 - (float)Player.PLAYER_DIMENSIONS / 2));
+        // Ensure player's internal update loop is running after reset
+        player.begin();
         
         // Clear projectiles
         projectiles.clear();
@@ -795,6 +867,47 @@ public class GameCore extends JComponent{
                     soundManager.toggleSound();
                 }
                 
+                // Toggle Agent control with T key
+                if (e.getKeyCode() == KeyEvent.VK_T) {
+                    agentMode = !agentMode;
+                    if (player != null) {
+                        player.setAgentControl(agentMode);
+                    }
+                }
+
+                // Demo: toggle model directory
+                if (e.getKeyCode() == KeyEvent.VK_D) {
+                    modelDir = modelDir.equals("models_fast") ? "models" : "models_fast";
+                    System.out.println("Switched model dir to: " + modelDir);
+                }
+                // Demo: load best model from current dir
+                if (e.getKeyCode() == KeyEvent.VK_B) {
+                    String path = modelDir + "/best_genome.bin";
+                    if (loadModel(path)) {
+                        currentModelLabel = new File(path).getName();
+                        System.out.println("Loaded model: " + path);
+                    } else {
+                        System.out.println("Model not found: " + path);
+                    }
+                }
+                // Demo: cycle generations with [ and ]
+                if (e.getKeyCode() == KeyEvent.VK_OPEN_BRACKET) {
+                    demoGenIndex = Math.max(0, demoGenIndex - 1);
+                    String path = String.format(modelDir + "/gen_%03d.bin", demoGenIndex);
+                    if (loadModel(path)) {
+                        currentModelLabel = new File(path).getName();
+                        System.out.println("Loaded model: " + path);
+                    }
+                }
+                if (e.getKeyCode() == KeyEvent.VK_CLOSE_BRACKET) {
+                    demoGenIndex = demoGenIndex + 1;
+                    String path = String.format(modelDir + "/gen_%03d.bin", demoGenIndex);
+                    if (loadModel(path)) {
+                        currentModelLabel = new File(path).getName();
+                        System.out.println("Loaded model: " + path);
+                    }
+                }
+                
                 // Start game from menu
                 if (e.getKeyCode() == KeyEvent.VK_SPACE && currentState == GameState.MENU) {
                     // Stop menu music and start gameplay
@@ -804,7 +917,9 @@ public class GameCore extends JComponent{
                 
                 // Forward input to player if playing
                 if (currentState == GameState.PLAYING) {
-                    inputListenerEvent(InputEventTypes.KEY_PRESSED, e.getKeyCode());
+                    if (!agentMode) {
+                        inputListenerEvent(InputEventTypes.KEY_PRESSED, e.getKeyCode());
+                    }
                 }
                 
                 // Handle space key for restart in game over state
@@ -817,7 +932,9 @@ public class GameCore extends JComponent{
             public void keyReleased(KeyEvent e) {
                 // Forward input to player if playing
                 if (currentState == GameState.PLAYING) {
-                    inputListenerEvent(InputEventTypes.KEY_RELEASED, e.getKeyCode());
+                    if (!agentMode) {
+                        inputListenerEvent(InputEventTypes.KEY_RELEASED, e.getKeyCode());
+                    }
                 }
                 
                 // Handle space key for restart
@@ -831,14 +948,18 @@ public class GameCore extends JComponent{
             @Override
             public void mousePressed(MouseEvent e) {
                 if (currentState == GameState.PLAYING) {
-                    mouseDown = true;
-                    // Immediate attempt on press
-                    attemptShoot();
+                    if (!agentMode) {
+                        mouseDown = true;
+                        // Immediate attempt on press
+                        attemptShoot();
+                    }
                 }
             }
             @Override
             public void mouseReleased(MouseEvent e) {
-                mouseDown = false;
+                if (!agentMode) {
+                    mouseDown = false;
+                }
             }
         });
     }
@@ -846,11 +967,13 @@ public class GameCore extends JComponent{
     public void inputListenerEvent(InputEventTypes eventType, int keyCode) {
         player.setInputToMap(eventType, keyCode);
     }
-
+    
     private void initGameObjects() {
         player = new Player(window);
         player.setPosition(new Vector2(width / 2 - (float)Player.PLAYER_DIMENSIONS / 2, 
-                                      height / 2 - (float)Player.PLAYER_DIMENSIONS / 2));
+                                       height / 2 - (float)Player.PLAYER_DIMENSIONS / 2));
+        // Start player's internal update loop now that position is set
+        player.begin();
         
         // Initialize asteroid manager with fair-spawn settings
         asteroidManager = new AsteroidManager(width, height, MAX_ASTEROIDS);
@@ -874,8 +997,16 @@ public class GameCore extends JComponent{
         
         // Initialize player input
         playerInput = new PlayerInput();
+        
+        // Initialize agent (NNAgent with random weights for smoke test)
+        int inputSize = 8 + 3 * 6; // must match buildAgentState()
+        int[] hidden = new int[]{32, 32};
+        int outputSize = 6; // [angleDeltaRaw, thrustF, thrustB, strafeL, strafeR, shoot]
+        Network net = Network.mlp(inputSize, hidden, outputSize, 42L);
+        agent = new NNAgent(net, 6f);
+        player.setAgentControl(agentMode);
     }
-
+    
     private void initProjectiles() {
         projectiles = new ArrayList<>();
 
@@ -924,7 +1055,7 @@ public class GameCore extends JComponent{
         long now = System.currentTimeMillis();
         if (now - lastShotTime >= currentFireInterval()) {
             playerShoot(1);
-            soundManager.playSound("shoot");
+            if (!headless) soundManager.playSound("shoot");
             lastShotTime = now;
         }
     }
@@ -935,5 +1066,108 @@ public class GameCore extends JComponent{
         } catch (InterruptedException e) {
             System.err.println("Thread interrupted: " + e.getMessage());
         }
+    }
+
+    public void setAgent(Agent agent) {
+        this.agent = agent;
+    }
+
+    public void setAgentMode(boolean enabled) {
+        this.agentMode = enabled;
+        if (player != null) player.setAgentControl(enabled);
+    }
+
+    // Run a single episode in headless mode and return fitness
+    public float runEpisodeHeadless(long durationMs) {
+        long startTime = System.currentTimeMillis();
+        long now;
+        currentState = GameState.PLAYING;
+        float fitness = 0f;
+        // Loop without rendering/sleep to go as fast as possible
+        while (true) {
+            // Directly update gameplay to avoid menu/pause logic
+            updateGameplay();
+            if (!player.isAlive()) {
+                break;
+            }
+            now = System.currentTimeMillis();
+            if (now - startTime >= durationMs) {
+                break;
+            }
+        }
+        // Compute fitness: survival time (seconds) + asteroids destroyed + score scaled - death penalty
+        float timeSec = (System.currentTimeMillis() - startTime) / 1000f;
+        fitness = timeSec + destroyedAsteroidsCount * 1.0f + (score * 0.01f);
+        if (!player.isAlive()) fitness -= 2.0f;
+        return fitness;
+    }
+
+    // Build normalized state vector for the agent
+    // Layout:
+    // [0] px (0..1), [1] py (0..1), [2] vx, [3] vy, [4] sinA, [5] cosA, [6] health (0..1), [7] shootCooldown (0..1)
+    // For each of N nearest asteroids (N=3): [dx, dy, avx, avy, sizeNorm, dist]
+    private float[] buildAgentState() {
+        final int N = 3;
+        List<Asteroid> list = new ArrayList<>(asteroids);
+        Vector2 pc = player.getCenter();
+        // sort by distance to player center
+        list.sort((a, b) -> {
+            float da = distanceSquared(pc, a.getCenter());
+            float db = distanceSquared(pc, b.getCenter());
+            return Float.compare(da, db);
+        });
+        // Base 8 + N*6
+        int sz = 8 + N * 6;
+        float[] s = new float[sz];
+        // Player pos normalized
+        s[0] = clamp01(pc.x / width);
+        s[1] = clamp01(pc.y / height);
+        // Player velocity normalization by a rough cap
+        float maxPV = 8f; // heuristic
+        s[2] = clampNeg1to1(player.getVelocity().x / maxPV);
+        s[3] = clampNeg1to1(player.getVelocity().y / maxPV);
+        // Angle
+        double rad = Math.toRadians(player.getAngle());
+        s[4] = (float)Math.sin(rad);
+        s[5] = (float)Math.cos(rad);
+        // Health (0..1)
+        s[6] = clamp01(player.getHealth() / 100f);
+        // Shoot cooldown normalized: 0 means ready to shoot
+        long now = System.currentTimeMillis();
+        long remain = Math.max(0, currentFireInterval() - (now - lastShotTime));
+        s[7] = clamp01(remain / (float)Math.max(1L, currentFireInterval()));
+        
+        int idx = 8;
+        int count = Math.min(N, list.size());
+        for (int i = 0; i < N; i++) {
+            if (i < count) {
+                Asteroid a = list.get(i);
+                Vector2 ac = a.getCenter();
+                float dx = (ac.x - pc.x) / width;
+                float dy = (ac.y - pc.y) / height;
+                float maxAV = 6f; // heuristic for asteroid speed
+                Vector2 av = a.getVelocity();
+                float avx = clampNeg1to1(av.x / maxAV);
+                float avy = clampNeg1to1(av.y / maxAV);
+                float sizeNorm = a.getSize() / 64f; // assuming 64 is largest common size
+                float dist = (float)Math.sqrt(distanceSquared(pc, ac)) / (float)Math.hypot(width, height);
+                s[idx++] = dx;
+                s[idx++] = dy;
+                s[idx++] = avx;
+                s[idx++] = avy;
+                s[idx++] = clamp01(sizeNorm);
+                s[idx++] = clamp01(dist);
+            } else {
+                // pad zeros
+                s[idx++] = 0f; s[idx++] = 0f; s[idx++] = 0f; s[idx++] = 0f; s[idx++] = 0f; s[idx++] = 0f;
+            }
+        }
+        return s;
+    }
+
+    private float clamp01(float v) { return Math.max(0f, Math.min(1f, v)); }
+    private float clampNeg1to1(float v) { return Math.max(-1f, Math.min(1f, v)); }
+    private float distanceSquared(Vector2 a, Vector2 b) {
+        float dx = a.x - b.x; float dy = a.y - b.y; return dx*dx + dy*dy;
     }
 }
