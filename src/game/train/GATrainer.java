@@ -119,6 +119,8 @@ public class GATrainer {
             float fit = core.runEpisodeHeadless(cfg.episodeDurationMs);
             fitnessSum += fit;
         }
+        // Cleanup to prevent thread/memory buildup
+        core.stopHeadless();
         return fitnessSum / cfg.episodesPerGenome;
     }
 

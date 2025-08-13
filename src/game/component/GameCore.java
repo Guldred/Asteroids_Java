@@ -1009,6 +1009,10 @@ public class GameCore extends JComponent{
     
     private void initProjectiles() {
         projectiles = new ArrayList<>();
+        if (headless) {
+            // In headless mode, skip background projectile maintenance thread
+            return;
+        }
 
         new Thread(() -> {
             long frameStartTime = 0;
@@ -1094,12 +1098,31 @@ public class GameCore extends JComponent{
             if (now - startTime >= durationMs) {
                 break;
             }
+            // Reduce CPU pressure in headless loop without impacting logic much
+            sleep(1);
         }
         // Compute fitness: survival time (seconds) + asteroids destroyed + score scaled - death penalty
         float timeSec = (System.currentTimeMillis() - startTime) / 1000f;
         fitness = timeSec + destroyedAsteroidsCount * 1.0f + (score * 0.01f);
         if (!player.isAlive()) fitness -= 2.0f;
         return fitness;
+    }
+
+    // Cleanup for headless evaluation to avoid thread/memory buildup
+    public void stopHeadless() {
+        try {
+            this.start = false; // stops projectile maintenance thread if any
+            if (player != null) {
+                player.stopUpdates();
+            }
+            if (soundManager != null) {
+                try { soundManager.stopMusic(); } catch (Exception ignored) {}
+                try { soundManager.stopAllSounds(); } catch (Exception ignored) {}
+            }
+            // Allow GC by clearing large collections
+            if (projectiles != null) projectiles.clear();
+            if (asteroids != null) asteroids.clear();
+        } catch (Exception ignored) {}
     }
 
     // Build normalized state vector for the agent
