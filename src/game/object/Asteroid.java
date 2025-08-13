@@ -24,6 +24,8 @@ public class Asteroid extends Updateable {
     private final Area shape;
     private float wallBounceFactor;
     private final float MAX_SPEED;
+    private boolean destroyed = false;
+    private boolean splitProcessed = false; // to ensure we only split once
 
     public Asteroid(Vector2 position, Vector2 velocity, int size) {
         super();
@@ -32,12 +34,69 @@ public class Asteroid extends Updateable {
         this.SIZE = size;
         this.rotationSpeed = (float) (Math.random() * 2 - 1);
         this.angle = 0;
-        this.image = new ImageIcon("src/game/resource/img/asteroids/asteroid_" + size + ".png").getImage();
+        
+        // Load asteroid image with error handling
+        String imagePath = "src/game/resource/img/asteroids/asteroid_" + size + ".png";
+        ImageIcon icon = new ImageIcon(imagePath);
+        if (icon.getIconWidth() <= 0) {
+            // Fallback to a different size if the specific size isn't available
+            icon = new ImageIcon("src/game/resource/img/asteroids/asteroid_64.png");
+            
+            // If still no image, create a simple asteroid shape
+            if (icon.getIconWidth() <= 0) {
+                BufferedImage fallbackImage = createFallbackAsteroidImage(size);
+                this.image = fallbackImage;
+            } else {
+                this.image = icon.getImage();
+            }
+        } else {
+            this.image = icon.getImage();
+        }
+        
         this.shape = createShape();
-        this.wallBounceFactor = 1.2f;
-        this.MAX_SPEED = (float) (Math.random() * 10 + 1);
+        this.wallBounceFactor = 1.1f;
+        // Lower overall asteroid max speed to keep gameplay fair
+        this.MAX_SPEED = (float) (2.0 + Math.random() * 2.0); // 2.0 - 4.0 px/frame cap when bouncing
 
         startUpdate();
+    }
+    
+    private BufferedImage createFallbackAsteroidImage(int size) {
+        // Create a simple asteroid shape as fallback
+        BufferedImage img = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2 = img.createGraphics();
+        
+        // Use anti-aliasing for smoother edges
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        
+        // Draw a rocky asteroid shape
+        int points = 8 + (int)(Math.random() * 5); // 8-12 points
+        int[] xPoints = new int[points];
+        int[] yPoints = new int[points];
+        
+        // Generate random points around a circle
+        for (int i = 0; i < points; i++) {
+            double angle = 2 * Math.PI * i / points;
+            double radius = size / 2.0 * (0.8 + Math.random() * 0.4); // Vary radius 80-120%
+            xPoints[i] = (int)(size / 2 + radius * Math.cos(angle));
+            yPoints[i] = (int)(size / 2 + radius * Math.sin(angle));
+        }
+        
+        // Fill with a gray color
+        g2.setColor(new Color(150, 150, 150));
+        g2.fillPolygon(xPoints, yPoints, points);
+        
+        // Add some texture/craters
+        g2.setColor(new Color(100, 100, 100));
+        for (int i = 0; i < 5; i++) {
+            int craterSize = (int)(size * (0.1 + Math.random() * 0.1));
+            int x = (int)(Math.random() * (size - craterSize));
+            int y = (int)(Math.random() * (size - craterSize));
+            g2.fillOval(x, y, craterSize, craterSize);
+        }
+        
+        g2.dispose();
+        return img;
     }
 
     private Area createShape() {
@@ -65,22 +124,15 @@ public class Asteroid extends Updateable {
     }
 
     public void draw(Graphics2D g2) {
+        if (destroyed) return;
+        
         AffineTransform oldTransform = g2.getTransform();
         g2.translate(position.x, position.y);
         AffineTransform t = new AffineTransform();
         t.rotate(Math.toRadians(angle), (double) SIZE / 2, (double) SIZE / 2);
-        g2.drawImage(image, t, null);
-
-        //Test
-        Shape shape = getShape();
-
+        g2.drawImage(image, 0, 0, SIZE, SIZE, null);
 
         g2.setTransform(oldTransform);
-
-        //Test
-        g2.setColor(Color.RED);
-        g2.draw(shape);
-        g2.draw(shape.getBounds());
     }
 
     public Vector2 getCenter() {
@@ -98,4 +150,30 @@ public class Asteroid extends Updateable {
             velocity.y = Math.max((Math.abs(velocity.y) * -1 * wallBounceFactor), -MAX_SPEED);
         }
     }
+    
+    public boolean isDestroyed() {
+        return destroyed;
+    }
+    
+    public void destroy() {
+        this.destroyed = true;
+        // Stop the update loop by setting start to false
+        this.start = false;
+    }
+    
+    public int getSize() {
+        return SIZE;
+    }
+    
+    public Vector2 getPosition() {
+        return position;
+    }
+    
+    public Vector2 getVelocity() {
+        return velocity;
+    }
+
+    // Split helpers
+    public boolean isSplitProcessed() { return splitProcessed; }
+    public void markSplitProcessed() { this.splitProcessed = true; }
 }
