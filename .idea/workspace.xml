@@ -4,31 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8cb6bc53-2f9d-4061-b2bf-a3add0362599" name="Changes" comment="Added some features">
-      <change afterPath="$PROJECT_DIR$/models_fast/best_genome.bin" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/models_fast/gen_000.bin" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/models_fast/gen_001.bin" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/models_fast/gen_002.bin" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/models_fast/gen_003.bin" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/models_fast/gen_004.bin" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/models_fast/gen_005.bin" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/models_fast/gen_006.bin" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/models_fast/gen_007.bin" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/readme.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/ai/Agent.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/ai/AgentInput.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/ai/NNAgent.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/ai/RandomAgent.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/nn/Activation.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/nn/DenseLayer.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/nn/Network.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/train/GAConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/train/GATrainer.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/train/Genome.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/train/TrainerMain.java" afterDir="false" />
+    <list default="true" id="8cb6bc53-2f9d-4061-b2bf-a3add0362599" name="Changes" comment="Added AI Playing the game">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/game/component/GameCore.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/component/GameCore.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/game/object/Player.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/object/Player.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models_fast/best_genome.bin" beforeDir="false" afterPath="$PROJECT_DIR$/models_fast/best_genome.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models_fast/gen_000.bin" beforeDir="false" afterPath="$PROJECT_DIR$/models_fast/gen_000.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models_fast/gen_001.bin" beforeDir="false" afterPath="$PROJECT_DIR$/models_fast/gen_001.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models_fast/gen_002.bin" beforeDir="false" afterPath="$PROJECT_DIR$/models_fast/gen_002.bin" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -172,7 +153,7 @@
       <workItem from="1754986647824" duration="2415000" />
       <workItem from="1754989180038" duration="7587000" />
       <workItem from="1755000621194" duration="616000" />
-      <workItem from="1755073547333" duration="8534000" />
+      <workItem from="1755073547333" duration="9215000" />
     </task>
     <task id="LOCAL-00001" summary="Continue Dev with local Qwen Coder 3">
       <option name="closed" value="true" />
@@ -246,7 +227,23 @@
       <option name="project" value="LOCAL" />
       <updated>1754998979858</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="Added AI Playing the game">
+      <option name="closed" value="true" />
+      <created>1755090366591</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1755090366591</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Added AI Playing the game">
+      <option name="closed" value="true" />
+      <created>1755090650098</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1755090650098</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -274,7 +271,8 @@
     <MESSAGE value="Fixed background" />
     <MESSAGE value="Added features" />
     <MESSAGE value="Added some features" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added some features" />
+    <MESSAGE value="Added AI Playing the game" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added AI Playing the game" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
