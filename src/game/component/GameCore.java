@@ -5,6 +5,8 @@ import game.object.Player;
 import game.object.PowerUp;
 import game.object.projectiles.Projectile;
 import game.object.projectiles.TripleShot;
+import game.ai.AIPlayer;
+import game.ai.AIStatsPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -42,8 +44,11 @@ public class GameCore extends JComponent{
     private final int TARGET_TIME = 1000000000 / FPS;
 
     // Game Objects
-    private Player player;
+    private AIPlayer player;
     private PlayerInput playerInput;
+    
+    // AI Statistics Panel
+    private AIStatsPanel aiStatsPanel;
     
     // Game settings
     private final int INITIAL_ASTEROID_COUNT = 5;
@@ -79,7 +84,7 @@ public class GameCore extends JComponent{
         GAME_OVER
     }
     
-    private GameState currentState = GameState.MENU;
+    private GameState currentState = GameState.PLAYING;
     
     // Background stars (kept for fallback)
     private static final int NUM_STARS = 100;
@@ -219,9 +224,17 @@ public class GameCore extends JComponent{
                 break;
                 
             case GAME_OVER:
-                // Check for restart
-                if (System.currentTimeMillis() - gameOverTime > RESTART_DELAY && playerInput.isKey_space()) {
-                    restartGame();
+                // Auto-restart for AI: automatically press spacebar after delay
+                if (System.currentTimeMillis() - gameOverTime > RESTART_DELAY) {
+                    if (player instanceof AIPlayer) {
+                        // AI automatically "presses" spacebar to restart
+                        playerInput.setKey_space(true);
+                    }
+                    
+                    // Check for restart (works for both AI auto-press and human spacebar press)
+                    if (playerInput.isKey_space()) {
+                        restartGame();
+                    }
                 }
                 updateBackground(0, 0); // Slow background movement in game over
                 break;
@@ -248,78 +261,71 @@ public class GameCore extends JComponent{
             return;
         }
         
+        // Update AI environment with current game state
+        player.setGameEnvironment(asteroids, powerUpManager.getPowerUps(), projectiles);
+        
+        // Handle AI firing
+        if (player.wantsToFire()) {
+            long now = System.currentTimeMillis();
+            if (now - lastShotTime >= currentFireInterval()) {
+                playerShoot(1);
+                soundManager.playSound("shoot");
+                lastShotTime = now;
+            }
+        }
+        
         // Update asteroid manager
         asteroidManager.update();
         
         // Update asteroids list from manager
         asteroids = asteroidManager.getAsteroids();
         
+        // Update power-ups
+        powerUpManager.update();
+        
         // Update particle system
         particleSystem.update();
         
-        // Update power-up manager
-        powerUpManager.update();
+        // Update background with player velocity (limit speed to prevent excessive scrolling)
+        float maxBackgroundSpeed = 2.0f;
+        float bgVelX = Math.max(-maxBackgroundSpeed, Math.min(maxBackgroundSpeed, player.getVelocity().x * 0.1f));
+        float bgVelY = Math.max(-maxBackgroundSpeed, Math.min(maxBackgroundSpeed, player.getVelocity().y * 0.1f));
+        updateBackground(bgVelX, bgVelY);
         
-        // Update background with stronger parallax effect based on player velocity
-        updateBackground(player.getVelocity().x * 0.02f, player.getVelocity().y * 0.02f);
-        
-        // Auto-fire while mouse held, respect fire rate and power-ups
+        // Continuous firing while mouse is held
         if (mouseDown) {
-            attemptShoot();
+            long now = System.currentTimeMillis();
+            if (now - lastShotTime >= currentFireInterval()) {
+                playerShoot(1);
+                soundManager.playSound("shoot");
+                lastShotTime = now;
+            }
         }
         
-        // Handle collisions
-        int destroyedAsteroids = CollisionDetector.handleProjectileAsteroidCollisions(projectiles, asteroids, asteroidManager);
+        checkProjectileAsteroidCollisions();
         
-        // Update level progress
-        if (destroyedAsteroids > 0) {
-            destroyedAsteroidsCount += destroyedAsteroids;
-            
-            // Play explosion sound for each destroyed asteroid
-            for (int i = 0; i < destroyedAsteroids; i++) {
-                // Vary the volume slightly for each explosion to create a more natural sound
-                float volume = 0.2f + (float)(Math.random() * 0.3f);
-                soundManager.playSoundWithVolume("explosion", volume);
-            }
-            
-            // Check for level up
-            if (destroyedAsteroidsCount >= asteroidsToNextLevel) {
-                levelUp();
-            }
-            
-            // Create explosion particles for destroyed asteroids
-            for (Asteroid asteroid : asteroids) {
-                if (asteroid.isDestroyed()) {
-                    // Create explosion at asteroid position
-                    Color[] explosionColors = {Color.RED, Color.ORANGE, Color.YELLOW};
-                    Color explosionColor = explosionColors[(int)(Math.random() * explosionColors.length)];
-                    particleSystem.createExplosion(
-                        asteroid.getCenter(), 
-                        explosionColor, 
-                        20 + asteroid.getSize() / 2, // More particles for larger asteroids
-                        asteroid.getSize() / 4
-                    );
-                    
-                    // Chance to spawn power-up
-                    powerUpManager.checkAsteroidDestroyed(asteroid);
+        // Check for collisions between player and asteroids
+        Rectangle2D playerBounds = player.getCollisionBounds();
+        boolean wasInvulnerable = player.isInvulnerable();
+        boolean tookDamage = false;
+        
+        for (Asteroid asteroid : asteroids) {
+            if (!asteroid.isDestroyed() && playerBounds.intersects(asteroid.getCollisionBounds())) {
+                if (!wasInvulnerable) {
+                    player.takeDamage(20); // Take damage from asteroid collision
+                    tookDamage = true;
                 }
+                break; // Only take damage from one asteroid per frame
             }
         }
         
-        score += destroyedAsteroids * 100; // 100 points per asteroid
-        
-        // Check for player-asteroid collisions
-        if (CollisionDetector.handlePlayerAsteroidCollisions(player, asteroids, asteroidManager)) {
-            boolean wasInvulnerable = player.isInvulnerable();
-            player.takeDamage(10); // Player takes damage when hit by asteroid (no-op if invulnerable)
-            
-            if (!wasInvulnerable) {
-                // Play hit sound only when damage actually applied
-                soundManager.playSound("hit");
-                // Start screen shake only when damage actually applied
-                screenShaking = true;
-                screenShakeStartTime = System.currentTimeMillis();
-            }
+        // Only trigger screen shake if damage was actually taken
+        if (tookDamage && !wasInvulnerable) {
+            // Play hit sound only when damage actually applied
+            soundManager.playSound("hit");
+            // Start screen shake only when damage actually applied
+            screenShaking = true;
+            screenShakeStartTime = System.currentTimeMillis();
         }
         
         // Check for player-powerup collisions
@@ -331,81 +337,6 @@ public class GameCore extends JComponent{
         }
     }
     
-    private void checkPlayerPowerUpCollisions() {
-        Rectangle2D playerBounds = player.getCollisionBounds();
-        List<PowerUp> powerUps = powerUpManager.getPowerUps();
-        
-        for (PowerUp powerUp : powerUps) {
-            if (!powerUp.isCollected() && powerUp.getCollisionShape().intersects(playerBounds)) {
-                // Collect power-up
-                powerUp.collect();
-                
-                // Apply power-up effect
-                player.activatePowerUp(powerUp.getType());
-                
-                // Play power-up sound
-                soundManager.playSound("powerup");
-                
-                // Create particles
-                particleSystem.createExplosion(
-                    new Vector2(
-                        (float)(playerBounds.getX() + playerBounds.getWidth() / 2),
-                        (float)(playerBounds.getY() + playerBounds.getHeight() / 2)
-                    ),
-                    Color.WHITE,
-                    15,
-                    5
-                );
-                
-                // Add score
-                score += 50;
-            }
-        }
-    }
-    
-    private void levelUp() {
-        level++;
-        destroyedAsteroidsCount = 0;
-        asteroidsToNextLevel = 10 + (level * 5); // Increase required asteroids for next level
-        
-        // Play level up sound
-        soundManager.playSound("levelup");
-        
-        // Increase max asteroids
-        int newMaxAsteroids = Math.min(MAX_ASTEROIDS + level, 20); // Cap at 20
-        asteroidManager = new AsteroidManager(width, height, newMaxAsteroids);
-        // Fair-spawn settings for new level: short grace and bigger initial buffer
-        asteroidManager.setPlayer(player);
-        asteroidManager.setSafeSpawnDistance(220f);
-        asteroidManager.setInitialSpawnDistance(380f);
-        asteroidManager.setTelegraphDelayMs(600);
-        asteroidManager.setArcBlockWidthDeg(80f);
-        asteroidManager.startLevelWindow(Math.max(800, 1600 - level * 100), Math.max(700, 1400 - level * 80));
-        // Difficulty scaling: faster asteroids and shorter spawn intervals as levels increase
-        asteroidManager.setSpeedMultiplier(1.0f + Math.min(1.0f, level * 0.12f));
-        asteroidManager.setSpawnInterval(Math.max(1200, 3000 - level * 150));
-        
-        // Spawn initial asteroids for new level
-        asteroidManager.spawnInitialAsteroids(Math.min(INITIAL_ASTEROID_COUNT + level, 10)); // Cap at 10 initial
-        asteroids = asteroidManager.getAsteroids();
-        
-        // Heal player a bit
-        player.heal(10);
-        
-        // Create level up effect
-        for (int i = 0; i < 5; i++) {
-            particleSystem.createExplosion(
-                new Vector2(
-                    (float)(Math.random() * width),
-                    (float)(Math.random() * height)
-                ),
-                Color.GREEN,
-                30,
-                10
-            );
-        }
-    }
-
     private void draw() {
         drawBackground();
         
@@ -661,6 +592,8 @@ public class GameCore extends JComponent{
         
         // Draw active power-ups indicator
         drawActivePowerUps();
+        
+        // Note: AIStatsPanel is handled by Swing, not drawn here
     }
     
     private void drawActivePowerUps() {
@@ -741,6 +674,9 @@ public class GameCore extends JComponent{
         asteroidsToNextLevel = 10;
         currentState = GameState.PLAYING;
         
+        // Clear any lingering input states
+        playerInput.setKey_space(false);
+        
         // Reset player
         player.reset();
         player.setPosition(new Vector2(width / 2 - (float)Player.PLAYER_DIMENSIONS / 2, 
@@ -765,6 +701,14 @@ public class GameCore extends JComponent{
         
         // Reset power-ups
         powerUpManager.clear();
+        
+        // CRITICAL: Reconnect AI environment after restart
+        if (player instanceof AIPlayer) {
+            player.setGameEnvironment(asteroids, powerUpManager.getPowerUps(), projectiles);
+            // Notify AI agent of new episode start
+            AIPlayer aiPlayer = (AIPlayer) player;
+            aiPlayer.onEpisodeStart();
+        }
     }
 
     private void initGFX() {
@@ -848,7 +792,7 @@ public class GameCore extends JComponent{
     }
 
     private void initGameObjects() {
-        player = new Player(window);
+        player = new AIPlayer(window, width, height);
         player.setPosition(new Vector2(width / 2 - (float)Player.PLAYER_DIMENSIONS / 2, 
                                       height / 2 - (float)Player.PLAYER_DIMENSIONS / 2));
         
@@ -859,7 +803,7 @@ public class GameCore extends JComponent{
         asteroidManager.setInitialSpawnDistance(360f);
         asteroidManager.setTelegraphDelayMs(600);
         asteroidManager.setArcBlockWidthDeg(80f);
-        asteroidManager.startLevelWindow(1500, 1200); // grace + forward-arc block when game starts
+        asteroidManager.startLevelWindow(1500, 1200);
         // Difficulty scaling at game start
         asteroidManager.setSpeedMultiplier(1.0f + Math.min(1.0f, level * 0.12f));
         asteroidManager.setSpawnInterval(Math.max(1400, 3000 - level * 150));
@@ -874,6 +818,13 @@ public class GameCore extends JComponent{
         
         // Initialize player input
         playerInput = new PlayerInput();
+        
+        // Initialize AI statistics panel
+        aiStatsPanel = new AIStatsPanel();
+        aiStatsPanel.setAgent(player.getAIAgent());
+        
+        // Set up game environment for AI agent
+        player.setGameEnvironment(asteroids, powerUpManager.getPowerUps(), projectiles);
     }
 
     private void initProjectiles() {
@@ -935,5 +886,145 @@ public class GameCore extends JComponent{
         } catch (InterruptedException e) {
             System.err.println("Thread interrupted: " + e.getMessage());
         }
+    }
+
+    private void checkProjectileAsteroidCollisions() {
+        int destroyedAsteroids = 0;
+        
+        for (Asteroid asteroid : new ArrayList<>(asteroids)) {
+            for (Projectile projectile : new ArrayList<>(projectiles)) {
+                if (asteroid.getCollisionBounds().intersects(projectile.getCollisionBounds())) {
+                    // Remove the projectile
+                    projectile.stop();
+                    projectiles.remove(projectile);
+                    
+                    // Handle asteroid destruction and splitting
+                    destroyAsteroid(asteroid);
+                    destroyedAsteroids++;
+                    break; // Exit projectile loop since this projectile is consumed
+                }
+            }
+        }
+        
+        // Update level progress
+        if (destroyedAsteroids > 0) {
+            destroyedAsteroidsCount += destroyedAsteroids;
+            score += destroyedAsteroids * 100; // 100 points per asteroid
+            
+            // Play explosion sound for each destroyed asteroid
+            for (int i = 0; i < destroyedAsteroids; i++) {
+                float volume = 0.2f + (float)(Math.random() * 0.3f);
+                soundManager.playSoundWithVolume("explosion", volume);
+            }
+            
+            // Check for level up
+            if (destroyedAsteroidsCount >= asteroidsToNextLevel) {
+                levelUp();
+            }
+        }
+    }
+    
+    private void destroyAsteroid(Asteroid asteroid) {
+        // Create explosion particles
+        Color[] explosionColors = {Color.RED, Color.ORANGE, Color.YELLOW};
+        Color explosionColor = explosionColors[(int)(Math.random() * explosionColors.length)];
+        particleSystem.createExplosion(
+            asteroid.getCenter(), 
+            explosionColor, 
+            20 + asteroid.getSize() / 2,
+            asteroid.getSize() / 4
+        );
+        
+        // Chance to spawn power-up
+        powerUpManager.checkAsteroidDestroyed(asteroid);
+        
+        // Handle asteroid splitting and removal
+        asteroidManager.removeAsteroid(asteroid);
+    }
+    
+    private void checkPlayerPowerUpCollisions() {
+        Rectangle2D playerBounds = player.getCollisionBounds();
+        List<PowerUp> powerUps = powerUpManager.getPowerUps();
+        
+        for (PowerUp powerUp : powerUps) {
+            if (!powerUp.isCollected() && powerUp.getCollisionShape().intersects(playerBounds)) {
+                // Collect power-up
+                powerUp.collect();
+                
+                // Apply power-up effect
+                player.activatePowerUp(powerUp.getType());
+                
+                // Play power-up sound
+                soundManager.playSound("powerup");
+                
+                // Create particles
+                particleSystem.createExplosion(
+                    new Vector2(
+                        (float)(playerBounds.getX() + playerBounds.getWidth() / 2),
+                        (float)(playerBounds.getY() + playerBounds.getHeight() / 2)
+                    ),
+                    Color.WHITE,
+                    15,
+                    5
+                );
+                
+                // Add score
+                score += 50;
+            }
+        }
+    }
+    
+    private void levelUp() {
+        level++;
+        destroyedAsteroidsCount = 0;
+        asteroidsToNextLevel = 10 + (level * 5); // Increase required asteroids for next level
+        
+        // Play level up sound
+        soundManager.playSound("levelup");
+        
+        // Increase max asteroids
+        int newMaxAsteroids = Math.min(MAX_ASTEROIDS + level, 20); // Cap at 20
+        asteroidManager = new AsteroidManager(width, height, newMaxAsteroids);
+        // Fair-spawn settings for new level: short grace and bigger initial buffer
+        asteroidManager.setPlayer(player);
+        asteroidManager.setSafeSpawnDistance(220f);
+        asteroidManager.setInitialSpawnDistance(380f);
+        asteroidManager.setTelegraphDelayMs(600);
+        asteroidManager.setArcBlockWidthDeg(80f);
+        asteroidManager.startLevelWindow(Math.max(800, 1600 - level * 100), Math.max(700, 1400 - level * 80));
+        // Difficulty scaling: faster asteroids and shorter spawn intervals as levels increase
+        asteroidManager.setSpeedMultiplier(1.0f + Math.min(1.0f, level * 0.12f));
+        asteroidManager.setSpawnInterval(Math.max(1200, 3000 - level * 150));
+        
+        // Update AI environment after level change
+        player.setGameEnvironment(asteroids, powerUpManager.getPowerUps(), projectiles);
+        
+        // Spawn initial asteroids for new level
+        asteroidManager.spawnInitialAsteroids(Math.min(INITIAL_ASTEROID_COUNT + level, 10)); // Cap at 10 initial
+        asteroids = asteroidManager.getAsteroids();
+        
+        // Heal player a bit
+        player.heal(10);
+        
+        // Create level up effect
+        for (int i = 0; i < 5; i++) {
+            particleSystem.createExplosion(
+                new Vector2(
+                    (float)(Math.random() * width),
+                    (float)(Math.random() * height)
+                ),
+                Color.GREEN,
+                30,
+                10
+            );
+        }
+    }
+    
+    public void stop() {
+        start = false;
+    }
+    
+    public AIPlayer getAIPlayer() {
+        return player;
     }
 }

@@ -3,6 +3,7 @@ package game.object.projectiles;
 import game.component.Vector2;
 
 import java.awt.*;
+import java.awt.geom.Rectangle2D;
 
 public interface Projectile {
 
@@ -19,6 +20,7 @@ public interface Projectile {
     public void stop();
 
     public boolean outOfBounds(int width, int height);
-
+    
+    public Rectangle2D getCollisionBounds();
 
 }

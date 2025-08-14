@@ -5,6 +5,7 @@ import game.component.Vector2;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 
 public class BaseProjectile extends Updateable implements Projectile {
     protected Vector2 position;
@@ -15,6 +16,7 @@ public class BaseProjectile extends Updateable implements Projectile {
     protected Color color;
     protected float size;
     protected float speed;
+    protected boolean start = true;
 
 
 
@@ -64,6 +66,11 @@ public class BaseProjectile extends Updateable implements Projectile {
     @Override
     public boolean outOfBounds(int width, int height) {
         return (position.x < 0 || position.x > width || position.y < 0 || position.y > height);
+    }
+    
+    @Override
+    public Rectangle2D getCollisionBounds() {
+        return new Rectangle2D.Float(position.x, position.y, size, size);
     }
 
     @Override

@@ -10,6 +10,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
 public class Asteroid extends Updateable {
@@ -137,6 +138,10 @@ public class Asteroid extends Updateable {
 
     public Vector2 getCenter() {
         return new Vector2( (float) (position.x + SIZE / 2), (float)(position.y + SIZE / 2));
+    }
+    
+    public Rectangle2D getCollisionBounds() {
+        return new Rectangle2D.Float(position.x, position.y, SIZE, SIZE);
     }
 
     public void checkOutOfBounds() {

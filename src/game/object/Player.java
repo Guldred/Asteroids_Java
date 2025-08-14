@@ -48,6 +48,7 @@ public class Player extends Updateable {
     public Player(JFrame window) {
         super();
         this.window = window;
+        this.position = new Vector2(0, 0); // Initialize position to prevent NullPointerException
         this.playerImage = new ImageIcon("src/game/resource/img/spaceship_brown_default_turned.png").getImage();
         this.playerInput = new PlayerInput();
         this.wallBounceFactor = 0.6f;
@@ -91,7 +92,7 @@ public class Player extends Updateable {
 
 
 
-    private void getInput(float deltaTime) {
+    protected void getInput(float deltaTime) {
         if (playerInput.isKey_up()) {
             accelerate(0, deltaTime);
         }
@@ -195,7 +196,7 @@ public class Player extends Updateable {
         this.playerViewAngle = playerViewAngle;
     }
 
-    public void turnToCursor() {
+    protected void turnToCursor() {
         setAngle(calcAngleFromPoints(getCenter(), playerInput.getMousePositionInGame(window)));
     }
 
@@ -252,21 +253,25 @@ public class Player extends Updateable {
         return health;
     }
     
-    public void takeDamage(int damage) {
-        if (invulnerable) return;
-        
-        // Shield absorbs damage
-        if (shieldActive) {
-            // Shield reduces damage by 50%
-            damage = damage / 2;
+    public void setInvulnerable(boolean invulnerable) {
+        this.invulnerable = invulnerable;
+        if (invulnerable) {
+            this.invulnerabilityTime = System.currentTimeMillis();
         }
-        
-        health -= damage;
-        if (health < 0) health = 0;
-        
-        // Make player invulnerable for a short time after being hit
-        invulnerable = true;
-        invulnerabilityTime = System.currentTimeMillis();
+    }
+    
+    public boolean isInvulnerable() {
+        return invulnerable;
+    }
+    
+    public void takeDamage(int damage) {
+        if (!invulnerable && health > 0) {
+            health = Math.max(0, health - damage);
+            if (health > 0) {
+                // Set invulnerability period after taking damage
+                setInvulnerable(true);
+            }
+        }
     }
     
     public boolean isAlive() {
@@ -286,10 +291,6 @@ public class Player extends Updateable {
         shieldActive = false;
         rapidFireActive = false;
         tripleShotActive = false;
-    }
-    
-    public boolean isInvulnerable() {
-        return invulnerable;
     }
     
     public void activatePowerUp(PowerUp.PowerUpType type) {
@@ -327,5 +328,18 @@ public class Player extends Updateable {
     
     public boolean hasTripleShot() {
         return tripleShotActive;
+    }
+    
+    // AI support methods
+    public float getPlayerViewAngle() {
+        return playerViewAngle;
+    }
+    
+    public void setPlayerViewAngle(float angle) {
+        this.playerViewAngle = angle;
+    }
+    
+    public long getInvulnerabilityStartTime() {
+        return invulnerabilityTime;
     }
 }
