@@ -82,6 +82,10 @@ public class GameCore extends JComponent{
     private long lastShotTime = 0L;
     private long baseFireIntervalMs = 250L; // 4 shots per second
     
+    // Shot tracking for fitness evaluation
+    private int shotsFired = 0;
+    private int shotsHit = 0;
+    
     // Game states
     public enum GameState {
         MENU,
@@ -325,10 +329,12 @@ public class GameCore extends JComponent{
         
         // Handle collisions
         int destroyedAsteroids = CollisionDetector.handleProjectileAsteroidCollisions(projectiles, asteroids, asteroidManager);
-        
-        // Update level progress
         if (destroyedAsteroids > 0) {
             destroyedAsteroidsCount += destroyedAsteroids;
+            shotsHit += destroyedAsteroids; // Track successful hits
+            for (int i = 0; i < destroyedAsteroids; i++) {
+                score += 10;
+            }
             
             // Play explosion sound for each destroyed asteroid
             for (int i = 0; i < destroyedAsteroids; i++) {
@@ -729,7 +735,7 @@ public class GameCore extends JComponent{
             g2.setColor(Color.YELLOW);
             g2.drawString("MODEL: " + currentModelLabel, 20, 80);
             g2.setColor(Color.LIGHT_GRAY);
-            g2.drawString("[D] Dir: " + modelDir + "  [B] load best  [\"[\"/\"]\"] gen " + String.format("%03d", demoGenIndex), 20, 100);
+            g2.drawString("[D] Dir: " + modelDir + "  [B] load best  [X/Y] gen " + String.format("%03d", demoGenIndex), 20, 100);
         }
     }
     
@@ -837,6 +843,10 @@ public class GameCore extends JComponent{
         
         // Reset power-ups
         powerUpManager.clear();
+        
+        // Reset shot tracking
+        shotsFired = 0;
+        shotsHit = 0;
     }
 
     private void initGFX() {
@@ -890,8 +900,8 @@ public class GameCore extends JComponent{
                         System.out.println("Model not found: " + path);
                     }
                 }
-                // Demo: cycle generations with [ and ]
-                if (e.getKeyCode() == KeyEvent.VK_OPEN_BRACKET) {
+                // Demo: cycle generations with X and Y
+                if (e.getKeyCode() == KeyEvent.VK_X) {
                     demoGenIndex = Math.max(0, demoGenIndex - 1);
                     String path = String.format(modelDir + "/gen_%03d.bin", demoGenIndex);
                     if (loadModel(path)) {
@@ -899,7 +909,7 @@ public class GameCore extends JComponent{
                         System.out.println("Loaded model: " + path);
                     }
                 }
-                if (e.getKeyCode() == KeyEvent.VK_CLOSE_BRACKET) {
+                if (e.getKeyCode() == KeyEvent.VK_Y) {
                     demoGenIndex = demoGenIndex + 1;
                     String path = String.format(modelDir + "/gen_%03d.bin", demoGenIndex);
                     if (loadModel(path)) {
@@ -1059,6 +1069,7 @@ public class GameCore extends JComponent{
         long now = System.currentTimeMillis();
         if (now - lastShotTime >= currentFireInterval()) {
             playerShoot(1);
+            shotsFired++; // Track shots fired
             if (!headless) soundManager.playSound("shoot");
             lastShotTime = now;
         }
@@ -1103,7 +1114,14 @@ public class GameCore extends JComponent{
         }
         // Compute fitness: survival time (seconds) + asteroids destroyed + score scaled - death penalty
         float timeSec = (System.currentTimeMillis() - startTime) / 1000f;
-        fitness = timeSec + destroyedAsteroidsCount * 1.0f + (score * 0.01f);
+        float accuracy = shotsFired > 0 ? (float)shotsHit / shotsFired : 0f;
+        float proximity = 0f;
+        for (Asteroid asteroid : asteroids) {
+            if (asteroid.isDestroyed()) {
+                proximity += 1f / asteroid.getSize();
+            }
+        }
+        fitness = timeSec + destroyedAsteroidsCount * 1.0f + (score * 0.01f) + accuracy * 2f + proximity * 0.5f;
         if (!player.isAlive()) fitness -= 2.0f;
         return fitness;
     }
@@ -1192,5 +1210,11 @@ public class GameCore extends JComponent{
     private float clampNeg1to1(float v) { return Math.max(-1f, Math.min(1f, v)); }
     private float distanceSquared(Vector2 a, Vector2 b) {
         float dx = a.x - b.x; float dy = a.y - b.y; return dx*dx + dy*dy;
+    }
+    
+    public int getShotsFired() { return shotsFired; }
+    public int getShotsHit() { return shotsHit; }
+    public float getAccuracy() { 
+        return shotsFired > 0 ? (float)shotsHit / shotsFired : 0f; 
     }
 }
