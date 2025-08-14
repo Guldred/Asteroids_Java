@@ -102,6 +102,7 @@ public class Player extends Updateable {
 
     // Stop the internal update loop (used by headless trainer cleanup)
     public void stopUpdates() {
+        this.updateStarted = false;
         this.start = false;
     }
 

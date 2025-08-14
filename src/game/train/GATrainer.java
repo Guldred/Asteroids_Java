@@ -26,20 +26,42 @@ public class GATrainer {
 
         // Initialize population
         List<Genome> pop = new ArrayList<>();
-        for (int i = 0; i < cfg.populationSize; i++) {
-            Genome g = new Genome(paramCount);
-            // Start from base weights + small noise
-            float[] p = new float[paramCount];
-            base.getParams(p);
-            for (int j = 0; j < paramCount; j++) {
-                p[j] += (float) (rng.nextGaussian() * 0.02);
+        Genome best = null;
+        
+        // Check if we should continue from checkpoint
+        if (cfg.continueFromCheckpoint != null) {
+            System.out.println("Loading checkpoint from: " + cfg.continueFromCheckpoint);
+            Genome checkpoint = loadGenome(cfg.continueFromCheckpoint);
+            if (checkpoint != null) {
+                best = checkpoint;
+                System.out.println("Loaded checkpoint with fitness: " + checkpoint.fitness);
+                // Initialize population around the checkpoint
+                for (int i = 0; i < cfg.populationSize; i++) {
+                    Genome g = new Genome(paramCount);
+                    if (i == 0) {
+                        // First genome is the exact checkpoint
+                        System.arraycopy(checkpoint.params, 0, g.params, 0, paramCount);
+                        g.fitness = checkpoint.fitness;
+                    } else {
+                        // Others are variations of the checkpoint
+                        System.arraycopy(checkpoint.params, 0, g.params, 0, paramCount);
+                        for (int j = 0; j < paramCount; j++) {
+                            g.params[j] += (float) (rng.nextGaussian() * 0.05); // Small variations
+                        }
+                    }
+                    pop.add(g);
+                }
+            } else {
+                System.err.println("Failed to load checkpoint, starting fresh");
+                // Fall back to fresh initialization
+                initializeFreshPopulation(pop, base, paramCount);
             }
-            System.arraycopy(p, 0, g.params, 0, paramCount);
-            pop.add(g);
+        } else {
+            // Fresh initialization
+            initializeFreshPopulation(pop, base, paramCount);
         }
 
         float sigma = cfg.mutationSigma;
-        Genome best = null;
 
         for (int gen = 0; gen < cfg.generations; gen++) {
             // Evaluate population
@@ -84,6 +106,20 @@ public class GATrainer {
         }
     }
 
+    private void initializeFreshPopulation(List<Genome> pop, Network base, int paramCount) {
+        for (int i = 0; i < cfg.populationSize; i++) {
+            Genome g = new Genome(paramCount);
+            // Start from base weights + small noise
+            float[] p = new float[paramCount];
+            base.getParams(p);
+            for (int j = 0; j < paramCount; j++) {
+                p[j] += (float) (rng.nextGaussian() * 0.02);
+            }
+            System.arraycopy(p, 0, g.params, 0, paramCount);
+            pop.add(g);
+        }
+    }
+
     private float meanFitness(List<Genome> pop) {
         double sum = 0;
         for (Genome g : pop) sum += g.fitness;
@@ -121,6 +157,7 @@ public class GATrainer {
         }
         // Cleanup to prevent thread/memory buildup
         core.stopHeadless();
+        dummy.dispose(); // Properly dispose of JFrame to free resources
         return fitnessSum / cfg.episodesPerGenome;
     }
 

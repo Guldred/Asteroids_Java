@@ -18,4 +18,5 @@ public class GAConfig {
     // Serialization
     public String outputDir = "models";
     public String checkpointPath = outputDir + "/best_genome.bin";
+    public String continueFromCheckpoint = null; // Path to checkpoint to continue from
 }

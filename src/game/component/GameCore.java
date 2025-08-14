@@ -1130,6 +1130,14 @@ public class GameCore extends JComponent{
     public void stopHeadless() {
         try {
             this.start = false; // stops projectile maintenance thread if any
+            
+            // Wait for main thread to terminate if it exists
+            if (thread != null && thread.isAlive()) {
+                try {
+                    thread.join(1000); // Wait up to 1 second for thread to finish
+                } catch (InterruptedException ignored) {}
+            }
+            
             if (player != null) {
                 player.stopUpdates();
             }
@@ -1137,6 +1145,7 @@ public class GameCore extends JComponent{
                 try { soundManager.stopMusic(); } catch (Exception ignored) {}
                 try { soundManager.stopAllSounds(); } catch (Exception ignored) {}
             }
+            
             // Allow GC by clearing large collections
             if (projectiles != null) projectiles.clear();
             if (asteroids != null) asteroids.clear();

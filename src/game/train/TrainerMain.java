@@ -41,6 +41,9 @@ public class TrainerMain {
                 case "--out":
                     if (i + 1 < args.length) { cfg.outputDir = args[++i]; cfg.checkpointPath = cfg.outputDir + "/best_genome.bin"; }
                     break;
+                case "--continue":
+                    if (i + 1 < args.length) cfg.continueFromCheckpoint = args[++i];
+                    break;
                 default:
                     break;
             }

@@ -17,7 +17,7 @@ public abstract class Updateable {
     }
 
     protected void startUpdate() {
-        new Thread(() -> {
+        Thread updateThread = new Thread(() -> {
             long frameStartTime = System.nanoTime();
             long frameRenderTime = 0;
             float deltaTime = 0;
@@ -33,7 +33,9 @@ public abstract class Updateable {
                 }
 
             }
-        }).start();
+        });
+        updateThread.setDaemon(true); 
+        updateThread.start();
     }
 
     private void sleep(long t) {

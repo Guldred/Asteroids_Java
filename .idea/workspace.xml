@@ -5,9 +5,44 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8cb6bc53-2f9d-4061-b2bf-a3add0362599" name="Changes" comment="Added AI Playing the game">
+      <change afterPath="$PROJECT_DIR$/models/best_genome.bin" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/models/gen_000.bin" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/models/gen_001.bin" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/game/ai/dqn/DQNAgent.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/game/ai/dqn/DQNNetwork.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/game/ai/dqn/ExperienceReplay.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/game/ai/dqn/Layer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/game/ai/dqn/Perceptron.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/game/train/DQNStatsPanel.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/game/train/EvolutionStatsPanel$AgentTablePanel.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/game/train/EvolutionStatsPanel$EvolutionGraphPanel.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/game/train/EvolutionStatsPanel.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/game/train/EvolutionStatsPanel.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/game/train/EvolutionaryDQNMain.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/game/train/EvolutionaryDQNMain.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/game/train/EvolutionaryDQNTrainer$AgentData.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/game/train/EvolutionaryDQNTrainer$GamePanel.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/game/train/EvolutionaryDQNTrainer.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/game/train/EvolutionaryDQNTrainer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/game/train/SimpleDQNMain.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/game/train/SimpleDQNTrainer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models_fast/best_genome.bin" beforeDir="false" afterPath="$PROJECT_DIR$/models_fast/best_genome.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models_fast/gen_000.bin" beforeDir="false" afterPath="$PROJECT_DIR$/models_fast/gen_000.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models_fast/gen_001.bin" beforeDir="false" afterPath="$PROJECT_DIR$/models_fast/gen_001.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models_fast/gen_002.bin" beforeDir="false" afterPath="$PROJECT_DIR$/models_fast/gen_002.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models_fast/gen_003.bin" beforeDir="false" afterPath="$PROJECT_DIR$/models_fast/gen_003.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models_fast/gen_004.bin" beforeDir="false" afterPath="$PROJECT_DIR$/models_fast/gen_004.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models_fast/gen_005.bin" beforeDir="false" afterPath="$PROJECT_DIR$/models_fast/gen_005.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models_fast/gen_006.bin" beforeDir="false" afterPath="$PROJECT_DIR$/models_fast/gen_006.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models_fast/gen_007.bin" beforeDir="false" afterPath="$PROJECT_DIR$/models_fast/gen_007.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/readme.md" beforeDir="false" afterPath="$PROJECT_DIR$/readme.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/game/component/GameCore.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/component/GameCore.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/component/Updateable.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/component/Updateable.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/object/Player.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/object/Player.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/train/GAConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/train/GAConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/train/GATrainer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/train/GATrainer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/train/TrainerMain.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/train/TrainerMain.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -38,12 +73,12 @@
     &quot;assignee&quot;: &quot;Guldred&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/Guldred/Asteroids_Java.git&quot;,
-    &quot;accountId&quot;: &quot;b86a5511-0197-4aed-bd89-baedeebdfb94&quot;
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/Guldred/Asteroids_Java.git",
+    "accountId": "24bedce3-4a4e-4911-8582-cb3d8c5fc589"
   }
-}</component>
+}]]></component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
@@ -117,14 +152,6 @@
         <item itemvalue="Application.Main" />
       </list>
     </recent_temporary>
-  </component>
-  <component name="SharedIndexes">
-    <attachedChunks>
-      <set>
-        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.23892.409" />
-        <option value="bundled-js-predefined-d6986cc7102b-e03c56caf84a-JavaScript-IU-252.23892.409" />
-      </set>
-    </attachedChunks>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
