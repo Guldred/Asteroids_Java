@@ -5,6 +5,7 @@ import game.component.Vector2;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +31,6 @@ public class TripleShot extends BaseProjectile {
         // Right projectile
         subProjectiles.add(new EnergyBall(position, velocity, angle + SPREAD_ANGLE, speed * 0.9f));
         
-        startUpdate();
     }
     
     @Override
@@ -43,9 +43,7 @@ public class TripleShot extends BaseProjectile {
     @Override
     protected void onUpdate(float deltaTime) {
         for (Projectile projectile : subProjectiles) {
-            if (projectile instanceof BaseProjectile) {
-                ((BaseProjectile) projectile).onUpdate(deltaTime);
-            }
+            projectile.update(deltaTime);
         }
     }
     
@@ -74,6 +72,19 @@ public class TripleShot extends BaseProjectile {
     @Override
     public Vector2 getPosition() {
         return subProjectiles.get(0).getPosition();
+    }
+
+    @Override
+    public Rectangle2D getCollisionBounds() {
+        Rectangle2D bounds = null;
+        for (Projectile projectile : subProjectiles) {
+            if (bounds == null) {
+                bounds = projectile.getCollisionBounds();
+            } else {
+                Rectangle2D.union(bounds, projectile.getCollisionBounds(), bounds);
+            }
+        }
+        return bounds != null ? bounds : super.getCollisionBounds();
     }
     
     // Return all three projectiles for collision detection

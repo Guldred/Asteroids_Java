@@ -19,11 +19,14 @@ public class AIStatsPanel extends JPanel {
     private JLabel learningStatusLabel;
     private JButton toggleLearningButton;
     private JButton resetButton;
+    private JButton saveButton;
+    private JButton loadButton;
     
     // Graph components
     private RewardGraphPanel rewardGraph;
     private List<Double> rewardHistory;
     private final int MAX_HISTORY_SIZE = 100;
+    private int lastSeenEpisode = 0;
     
     private DecimalFormat df = new DecimalFormat("#.####");
     private Timer updateTimer;
@@ -37,6 +40,14 @@ public class AIStatsPanel extends JPanel {
     
     public void setAgent(QLearningAgent agent) {
         this.agent = agent;
+        this.rewardHistory.clear();
+        if (agent != null) {
+            this.rewardHistory.addAll(agent.getRecentRewardHistory(MAX_HISTORY_SIZE));
+            this.lastSeenEpisode = agent.getEpisodeCount();
+        } else {
+            this.lastSeenEpisode = 0;
+        }
+        rewardGraph.updateData(rewardHistory);
     }
     
     private void initializeComponents() {
@@ -74,8 +85,36 @@ public class AIStatsPanel extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (agent != null) {
-                    // Reset the agent (would need to add this method)
+                    agent.resetLearning();
                     rewardHistory.clear();
+                    lastSeenEpisode = agent.getEpisodeCount();
+                    rewardGraph.updateData(rewardHistory);
+                }
+            }
+        });
+
+        saveButton = new JButton("Save Checkpoint");
+        saveButton.setBackground(Color.DARK_GRAY);
+        saveButton.setForeground(Color.WHITE);
+        saveButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (agent != null) {
+                    agent.saveCheckpoint();
+                }
+            }
+        });
+
+        loadButton = new JButton("Load Checkpoint");
+        loadButton.setBackground(Color.DARK_GRAY);
+        loadButton.setForeground(Color.WHITE);
+        loadButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (agent != null && agent.loadLatestCheckpoint()) {
+                    rewardHistory.clear();
+                    rewardHistory.addAll(agent.getRecentRewardHistory(MAX_HISTORY_SIZE));
+                    lastSeenEpisode = agent.getEpisodeCount();
                     rewardGraph.updateData(rewardHistory);
                 }
             }
@@ -106,9 +145,11 @@ public class AIStatsPanel extends JPanel {
         statsPanel.add(learningStatusLabel);
         
         // Control buttons section
-        JPanel buttonPanel = new JPanel(new GridLayout(2, 1, 5, 5));
+        JPanel buttonPanel = new JPanel(new GridLayout(4, 1, 5, 5));
         buttonPanel.setBackground(Color.BLACK);
         buttonPanel.add(toggleLearningButton);
+        buttonPanel.add(saveButton);
+        buttonPanel.add(loadButton);
         buttonPanel.add(resetButton);
         
         // Add components
@@ -149,8 +190,9 @@ public class AIStatsPanel extends JPanel {
         stepsLabel.setText("Steps: " + agent.getStepCount());
         
         // Update reward history
-        if (agent.getEpisodeCount() > rewardHistory.size()) {
+        if (agent.getEpisodeCount() > lastSeenEpisode) {
             rewardHistory.add(agent.getAverageReward());
+            lastSeenEpisode = agent.getEpisodeCount();
             
             // Keep history size manageable
             if (rewardHistory.size() > MAX_HISTORY_SIZE) {

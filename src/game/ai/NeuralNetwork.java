@@ -1,5 +1,8 @@
 package game.ai;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.List;
 import java.util.Random;
 
@@ -45,8 +48,8 @@ public class NeuralNetwork {
     public void trainBatch(List<ExperienceReplay.Experience> batch) {
         for (ExperienceReplay.Experience exp : batch) {
             // Validate experience data to prevent crashes
-            if (exp.state == null || exp.action == null || exp.nextState == null ||
-                exp.state.length == 0 || exp.action.length == 0 || exp.nextState.length == 0) {
+            if (exp.state == null || exp.nextState == null ||
+                exp.state.length == 0 || exp.nextState.length == 0) {
                 continue; // Skip invalid experiences
             }
             
@@ -63,17 +66,12 @@ public class NeuralNetwork {
             }
             
             // Create proper target array with expected output size
-            double[] currentOutput = forward(exp.state);
-            if (currentOutput.length != exp.action.length) {
+            double[] targets = forward(exp.state);
+            if (exp.actionIndex < 0 || exp.actionIndex >= targets.length) {
                 continue; // Skip if dimensions don't match
             }
-            
-            double[] targets = currentOutput.clone(); // Start with current network output
-            
-            // Update all outputs toward the target - simplified continuous action training
-            for (int i = 0; i < targets.length; i++) {
-                targets[i] = target * 0.1 + exp.action[i] * 0.9; // Smooth update toward target
-            }
+
+            targets[exp.actionIndex] = target;
             
             // Backpropagate
             backpropagate(exp.state, targets);
@@ -112,6 +110,34 @@ public class NeuralNetwork {
         
         for (int i = 0; i < layers.length; i++) {
             layers[i].copyWeightsFrom(other.layers[i]);
+        }
+    }
+
+    public void mutate(double mutationRate, double mutationStrength, Random random) {
+        for (Layer layer : layers) {
+            layer.mutate(mutationRate, mutationStrength, random);
+        }
+    }
+
+    public void writeTo(DataOutputStream out) throws IOException {
+        out.writeInt(layers.length);
+        out.writeDouble(learningRate);
+        for (Layer layer : layers) {
+            layer.writeTo(out);
+        }
+    }
+
+    public void readFrom(DataInputStream in) throws IOException {
+        int savedLayerCount = in.readInt();
+        double savedLearningRate = in.readDouble();
+
+        if (savedLayerCount != layers.length) {
+            throw new IOException("Saved network architecture does not match current network");
+        }
+
+        this.learningRate = savedLearningRate;
+        for (Layer layer : layers) {
+            layer.readFrom(in);
         }
     }
     
@@ -225,6 +251,48 @@ public class NeuralNetwork {
             for (int i = 0; i < weights.length; i++) {
                 System.arraycopy(other.weights[i], 0, this.weights[i], 0, weights[i].length);
                 biases[i] = other.biases[i];
+            }
+        }
+
+        public void mutate(double mutationRate, double mutationStrength, Random random) {
+            for (int i = 0; i < weights.length; i++) {
+                if (random.nextDouble() < mutationRate) {
+                    biases[i] += random.nextGaussian() * mutationStrength;
+                }
+                for (int j = 0; j < weights[i].length; j++) {
+                    if (random.nextDouble() < mutationRate) {
+                        weights[i][j] += random.nextGaussian() * mutationStrength;
+                    }
+                }
+            }
+        }
+
+        public void writeTo(DataOutputStream out) throws IOException {
+            out.writeBoolean(useActivation);
+            out.writeInt(weights.length);
+            out.writeInt(weights[0].length);
+            for (int i = 0; i < weights.length; i++) {
+                out.writeDouble(biases[i]);
+                for (int j = 0; j < weights[i].length; j++) {
+                    out.writeDouble(weights[i][j]);
+                }
+            }
+        }
+
+        public void readFrom(DataInputStream in) throws IOException {
+            boolean savedUseActivation = in.readBoolean();
+            int outputSize = in.readInt();
+            int inputSize = in.readInt();
+
+            if (savedUseActivation != useActivation || outputSize != weights.length || inputSize != weights[0].length) {
+                throw new IOException("Saved layer architecture does not match current layer");
+            }
+
+            for (int i = 0; i < weights.length; i++) {
+                biases[i] = in.readDouble();
+                for (int j = 0; j < weights[i].length; j++) {
+                    weights[i][j] = in.readDouble();
+                }
             }
         }
     }

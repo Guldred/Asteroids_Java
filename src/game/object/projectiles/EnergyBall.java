@@ -11,6 +11,5 @@ public class EnergyBall extends BaseProjectile {
         this.size = 10;
         this.shape = new Ellipse2D.Float(0, 0, size, size);
         this.color = Color.RED;
-        startUpdate();
     }
 }

@@ -11,8 +11,8 @@ public class AIPlayer extends Player {
     private QLearningAgent aiAgent;
     private QLearningAgent.AIAction currentAction;
     private boolean aiControlled = true;
-    private long lastActionTime = System.currentTimeMillis();
     private final long ACTION_UPDATE_INTERVAL = 100; // Update AI decision every 100ms
+    private double actionUpdateAccumulatorMs = ACTION_UPDATE_INTERVAL;
     private boolean wantsToFire = false;
     
     public AIPlayer(JFrame window, int screenWidth, int screenHeight) {
@@ -24,10 +24,10 @@ public class AIPlayer extends Player {
     @Override
     public void onUpdate(float deltaTime) {
         // Update AI decision periodically
-        long currentTime = System.currentTimeMillis();
-        if (aiControlled && currentTime - lastActionTime > ACTION_UPDATE_INTERVAL) {
+        actionUpdateAccumulatorMs += deltaTime * 10.0;
+        if (aiControlled && actionUpdateAccumulatorMs >= ACTION_UPDATE_INTERVAL) {
             currentAction = aiAgent.getAction();
-            lastActionTime = currentTime;
+            actionUpdateAccumulatorMs = 0;
         }
         
         // Apply AI input instead of human input if AI controlled
@@ -132,7 +132,7 @@ public class AIPlayer extends Player {
     public void onEpisodeStart() {
         if (aiAgent != null) {
             // Reset AI decision timing
-            lastActionTime = System.currentTimeMillis();
+            actionUpdateAccumulatorMs = ACTION_UPDATE_INTERVAL;
             currentAction = new QLearningAgent.AIAction(0, 0, 0, false);
             // AI agent will handle its own episode start logic
         }
@@ -140,8 +140,7 @@ public class AIPlayer extends Player {
     
     public void onEpisodeEnd() {
         if (aiAgent != null) {
-            // AI agent handles episode end logic (reward calculation, experience storage, etc.)
-            // This is called from GameCore when player dies
+            aiAgent.onEpisodeEnd();
         }
     }
     

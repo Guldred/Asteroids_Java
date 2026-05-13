@@ -4,8 +4,25 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8cb6bc53-2f9d-4061-b2bf-a3add0362599" name="Changes" comment="Added features">
+    <list default="true" id="8cb6bc53-2f9d-4061-b2bf-a3add0362599" name="Changes" comment="Added AI Playing the game">
+      <change afterPath="$PROJECT_DIR$/src/game/train/TrainingArena.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/ai/AIPlayer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/ai/AIPlayer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/ai/AIStatsPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/ai/AIStatsPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/ai/ExperienceReplay.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/ai/ExperienceReplay.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/ai/NeuralNetwork.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/ai/NeuralNetwork.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/ai/QLearningAgent.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/ai/QLearningAgent.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/component/AsteroidManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/component/AsteroidManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/component/GameCore.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/component/GameCore.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/component/PowerUpManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/component/PowerUpManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/component/Updateable.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/component/Updateable.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/object/Asteroid.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/object/Asteroid.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/object/Player.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/object/Player.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/object/PowerUp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/object/PowerUp.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/object/projectiles/BaseProjectile.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/object/projectiles/BaseProjectile.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/object/projectiles/EnergyBall.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/object/projectiles/EnergyBall.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/object/projectiles/Projectile.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/object/projectiles/Projectile.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/game/object/projectiles/TripleShot.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/object/projectiles/TripleShot.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -14,6 +31,9 @@
   </component>
   <component name="ComposerSettings">
     <execution />
+  </component>
+  <component name="EmbeddingIndexingInfo">
+    <option name="cachedIndexableFilesCount" value="318" />
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -25,7 +45,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="ai/windsurf-v2" />
+        <entry key="$PROJECT_DIR$" value="master" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -39,11 +59,15 @@
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/Guldred/Asteroids_Java.git&quot;,
-    &quot;accountId&quot;: &quot;b86a5511-0197-4aed-bd89-baedeebdfb94&quot;
+    &quot;accountId&quot;: &quot;24bedce3-4a4e-4911-8582-cb3d8c5fc589&quot;
   }
 }</component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
+  </component>
+  <component name="McpProjectServerCommands">
+    <commands />
+    <urls />
   </component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
@@ -61,11 +85,16 @@
   "keyToString": {
     "ASKED_ADD_EXTERNAL_FILES": "true",
     "Application.Main.executor": "Run",
+    "RunOnceActivity.MCP Project settings loaded": "true",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "WebServerToolWindowFactoryState": "false",
-    "git-widget-placeholder": "master",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "git-widget-placeholder": "ai/second-try-q-learning",
+    "ignore.virus.scanning.warn.message": "true",
     "junie.onboarding.icon.badge.shown": "true",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "/Users/christian.malak/webdev_priv/Asteroids_Java/src/game/resource/img/powerups",
@@ -76,7 +105,7 @@
     "project.structure.last.edited": "Modules",
     "project.structure.proportion": "0.0",
     "project.structure.side.proportion": "0.0",
-    "settings.editor.selected.configurable": "com.codeium.AppSettingsConfigurable",
+    "settings.editor.selected.configurable": "ml.llm.LLMConfigurable",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -111,14 +140,6 @@
         <item itemvalue="Application.Main" />
       </list>
     </recent_temporary>
-  </component>
-  <component name="SharedIndexes">
-    <attachedChunks>
-      <set>
-        <option value="bundled-jdk-9823dce3aa75-fbdcb00ec9e3-intellij.indexing.shared.core-IU-251.27812.49" />
-        <option value="bundled-js-predefined-d6986cc7102b-09060db00ec0-JavaScript-IU-251.27812.49" />
-      </set>
-    </attachedChunks>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -205,7 +226,15 @@
       <option name="project" value="LOCAL" />
       <updated>1753866012709</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Added AI Playing the game">
+      <option name="closed" value="true" />
+      <created>1755208812895</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1755208812895</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -232,7 +261,8 @@
     <MESSAGE value="Claude 3.7" />
     <MESSAGE value="Fixed background" />
     <MESSAGE value="Added features" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added features" />
+    <MESSAGE value="Added AI Playing the game" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added AI Playing the game" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

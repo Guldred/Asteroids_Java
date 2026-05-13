@@ -52,7 +52,6 @@ public class Player extends Updateable {
         this.playerImage = new ImageIcon("src/game/resource/img/spaceship_brown_default_turned.png").getImage();
         this.playerInput = new PlayerInput();
         this.wallBounceFactor = 0.6f;
-        super.startUpdate();
     }
 
 

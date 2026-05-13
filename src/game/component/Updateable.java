@@ -36,6 +36,10 @@ public abstract class Updateable {
         }).start();
     }
 
+    public void update(float deltaTime) {
+        this.onUpdate(deltaTime);
+    }
+
     private void sleep(long t) {
         try {
             Thread.sleep(t);

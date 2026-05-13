@@ -19,6 +19,8 @@ public interface Projectile {
 
     public void stop();
 
+    public void update(float deltaTime);
+
     public boolean outOfBounds(int width, int height);
     
     public Rectangle2D getCollisionBounds();

@@ -55,12 +55,16 @@ public class AsteroidManager {
         this.arcBlockEndTime = now + arcMs;
     }
     
-    public void update() {
+    public void update(float deltaTime) {
         // Spawn new asteroids if needed
         long currentTime = System.currentTimeMillis();
         if (currentTime >= graceEndTime && asteroids.size() < maxAsteroids && currentTime - lastSpawnTime > spawnInterval) {
             spawnRandomAsteroidWithMinDistance(safeSpawnDistance); // regular spawn uses safeSpawnDistance
             lastSpawnTime = currentTime;
+        }
+
+        for (Asteroid asteroid : asteroids) {
+            asteroid.update(deltaTime);
         }
         
         // Remove destroyed asteroids

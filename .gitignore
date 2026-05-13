@@ -25,5 +25,9 @@ bin/
 ### VS Code ###
 .vscode/
 
+### Training artifacts ###
+training/checkpoints/
+training/logs/
+
 ### Mac OS ###
 .DS_Store

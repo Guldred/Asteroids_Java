@@ -68,7 +68,6 @@ public class PowerUp extends Updateable {
         this.rotationSpeed = (random.nextFloat() - 0.5f) * 2;
         this.creationTime = System.currentTimeMillis();
         
-        startUpdate();
     }
     
     private void loadImage() {

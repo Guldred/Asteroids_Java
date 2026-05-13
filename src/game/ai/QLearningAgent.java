@@ -7,6 +7,15 @@ import game.object.PowerUp;
 import game.object.projectiles.Projectile;
 
 import java.awt.*;
+import java.io.BufferedWriter;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.AtomicMoveNotSupportedException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -16,6 +25,12 @@ public class QLearningAgent {
     private NeuralNetwork qNetwork;
     private NeuralNetwork targetNetwork;
     private ExperienceReplay experienceReplay;
+    private static final int CHECKPOINT_VERSION = 1;
+    private static final String CHECKPOINT_MAGIC = "ASTEROIDS_DQN";
+    private static final Path CHECKPOINT_DIR = Path.of("training", "checkpoints");
+    private static final Path LATEST_CHECKPOINT = CHECKPOINT_DIR.resolve("latest.bin");
+    private static final Path REWARD_LOG = Path.of("training", "logs", "rewards.csv");
+    private static final int CHECKPOINT_INTERVAL_EPISODES = 5;
     
     // Learning parameters
     private final double LEARNING_RATE = 0.001;
@@ -24,10 +39,11 @@ public class QLearningAgent {
     private final double EPSILON_DECAY = 0.995;
     private final double MIN_EPSILON = 0.01;
     private double currentEpsilon;
+    private double epsilonBeforePause;
     
     // State and action dimensions
     private final int STATE_SIZE = 24; // Size of state vector
-    private final int ACTION_SIZE = 4; // forward/back thrust, side thrust, turn angle, fire
+    private final int ACTION_SIZE = 9; // one Q-value per discrete action
     
     // Game environment references
     private Player controlledPlayer;
@@ -45,22 +61,23 @@ public class QLearningAgent {
     
     // Experience tracking
     private double[] lastState;
-    private double[] lastAction;
+    private int lastActionIndex = -1;
     private double lastReward;
     private boolean learningEnabled = true;
     
     private Random random = new Random();
     
-    // Reward tracking for better feedback
-    private int lastAsteroidCount = 0;
-    private int lastPowerUpCount = 0;
-    private int lastHealth = 100;
-    private boolean justTookDamage = false;
+    private double pendingEventReward = 0;
     
     public QLearningAgent(int screenWidth, int screenHeight) {
+        this(screenWidth, screenHeight, true);
+    }
+
+    public QLearningAgent(int screenWidth, int screenHeight, boolean loadCheckpoint) {
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
         this.currentEpsilon = EPSILON;
+        this.epsilonBeforePause = EPSILON;
         
         // Initialize neural networks
         this.qNetwork = new NeuralNetwork(STATE_SIZE, ACTION_SIZE, LEARNING_RATE);
@@ -69,6 +86,10 @@ public class QLearningAgent {
         
         // Initialize experience replay
         this.experienceReplay = new ExperienceReplay(10000);
+
+        if (loadCheckpoint) {
+            loadLatestCheckpoint();
+        }
     }
     
     public void setGameEnvironment(Player player, List<Asteroid> asteroids, 
@@ -85,42 +106,87 @@ public class QLearningAgent {
         }
         
         double[] state = getStateVector();
-        double[] qValues;
-        
-        // Epsilon-greedy action selection
+        double[] qValues = qNetwork.forward(state);
+
+        int actionIndex;
         if (learningEnabled && random.nextDouble() < currentEpsilon) {
-            // Random exploration
-            qValues = new double[ACTION_SIZE];
-            for (int i = 0; i < ACTION_SIZE; i++) {
-                qValues[i] = (random.nextDouble() - 0.5) * 2; // [-1, 1] for continuous actions
-            }
+            actionIndex = random.nextInt(ACTION_SIZE);
         } else {
-            // Exploit learned policy
-            qValues = qNetwork.forward(state);
+            actionIndex = findMaxIndex(qValues);
         }
-        
-        // Convert Q-values to actions
-        double forwardThrust = Math.tanh(qValues[0]); // [-1, 1]
-        double sideThrust = Math.tanh(qValues[1]); // [-1, 1] 
-        double turnAngle = (Math.tanh(qValues[2]) + 1) * 180; // [0, 360]
-        boolean fire = qValues[3] > 0;
         
         // Store for learning
         if (learningEnabled) {
-            if (lastState != null) {
+            if (lastState != null && lastActionIndex >= 0) {
                 // Calculate reward and learn from previous experience
                 double reward = calculateReward();
-                experienceReplay.addExperience(lastState, lastAction, reward, state, false);
+                experienceReplay.addExperience(lastState, lastActionIndex, reward, state, false);
                 trainNetwork();
                 totalReward += reward;
                 stepCount++;
             }
             
             lastState = state.clone();
-            lastAction = qValues.clone();
+            lastActionIndex = actionIndex;
         }
         
-        return new AIAction(forwardThrust, sideThrust, turnAngle, fire);
+        return mapAction(actionIndex);
+    }
+
+    private AIAction mapAction(int actionIndex) {
+        double currentAngle = controlledPlayer != null ? controlledPlayer.getPlayerViewAngle() : 0;
+        double leftTurn = normalizeAngle(currentAngle - 18);
+        double rightTurn = normalizeAngle(currentAngle + 18);
+
+        switch (actionIndex) {
+            case 1:
+                return new AIAction(1.0, 0, currentAngle, false);
+            case 2:
+                return new AIAction(-0.7, 0, currentAngle, false);
+            case 3:
+                return new AIAction(0, -0.8, currentAngle, false);
+            case 4:
+                return new AIAction(0, 0.8, currentAngle, false);
+            case 5:
+                return new AIAction(0, 0, leftTurn, false);
+            case 6:
+                return new AIAction(0, 0, rightTurn, false);
+            case 7:
+                return new AIAction(0, 0, currentAngle, true);
+            case 8:
+                return new AIAction(0.6, 0, angleToNearestAsteroid(currentAngle), true);
+            default:
+                return new AIAction(0, 0, currentAngle, false);
+        }
+    }
+
+    private double normalizeAngle(double angle) {
+        while (angle < 0) angle += 360;
+        while (angle >= 360) angle -= 360;
+        return angle;
+    }
+
+    private double angleToNearestAsteroid(double fallbackAngle) {
+        if (controlledPlayer == null) return fallbackAngle;
+        Asteroid nearest = findNearestAsteroid(controlledPlayer.getPosition());
+        if (nearest == null) return fallbackAngle;
+
+        Vector2 playerCenter = controlledPlayer.getCenter();
+        Vector2 asteroidCenter = nearest.getCenter();
+        double angle = Math.toDegrees(Math.atan2(asteroidCenter.y - playerCenter.y, asteroidCenter.x - playerCenter.x));
+        return normalizeAngle(angle);
+    }
+
+    private int findMaxIndex(double[] values) {
+        int maxIndex = 0;
+        double max = values[0];
+        for (int i = 1; i < values.length; i++) {
+            if (values[i] > max) {
+                max = values[i];
+                maxIndex = i;
+            }
+        }
+        return maxIndex;
     }
     
     private double[] getStateVector() {
@@ -191,48 +257,8 @@ public class QLearningAgent {
         
         double reward = 0;
         
-        // === SURVIVAL REWARDS ===
-        reward += 0.05; // Small base survival reward per step
-        
-        // === ASTEROID DESTRUCTION REWARDS (HUGE) ===
-        int currentAsteroidCount = asteroids != null ? asteroids.size() : 0;
-        if (lastAsteroidCount > 0 && currentAsteroidCount < lastAsteroidCount) {
-            // AI successfully destroyed asteroid(s)!
-            int destroyedCount = lastAsteroidCount - currentAsteroidCount;
-            reward += destroyedCount * 50.0; // HUGE reward for shooting asteroids!
-            System.out.println("AI destroyed " + destroyedCount + " asteroid(s)! Reward: +" + (destroyedCount * 50.0));
-        }
-        lastAsteroidCount = currentAsteroidCount;
-        
-        // === POWER-UP COLLECTION REWARDS (GOOD) ===
-        int currentPowerUpCount = powerUps != null ? powerUps.size() : 0;
-        if (lastPowerUpCount > 0 && currentPowerUpCount < lastPowerUpCount) {
-            // AI collected power-up(s)!
-            int collectedCount = lastPowerUpCount - currentPowerUpCount;
-            reward += collectedCount * 20.0; // Good reward for collecting power-ups
-            System.out.println("AI collected " + collectedCount + " power-up(s)! Reward: +" + (collectedCount * 20.0));
-        }
-        lastPowerUpCount = currentPowerUpCount;
-        
-        // === DAMAGE PENALTIES (VERY BAD) ===
-        int currentHealth = controlledPlayer.getHealth();
-        if (currentHealth < lastHealth) {
-            // AI took damage!
-            int damageTaken = lastHealth - currentHealth;
-            reward -= damageTaken * 2.0; // Large penalty for taking damage
-            justTookDamage = true;
-            System.out.println("AI took " + damageTaken + " damage! Penalty: -" + (damageTaken * 2.0));
-        }
-        lastHealth = currentHealth;
-        
-        // === DEATH PENALTY (VERY VERY BAD) ===
-        if (!controlledPlayer.isAlive()) {
-            reward -= 100.0; // Massive death penalty
-            episodeCount++;
-            System.out.println("AI died! Episode " + episodeCount + " ended. Death penalty: -100.0");
-            resetEpisode();
-            return reward; // Return early on death
-        }
+        reward += 0.02; // small survival reward per decision
+        reward += consumePendingReward();
         
         // === PROXIMITY PENALTIES (BAD) ===
         // Penalty for being too close to asteroids
@@ -251,7 +277,8 @@ public class QLearningAgent {
         
         // === SMALL POSITIVE REWARDS ===
         // Health maintenance bonus
-        reward += (currentHealth / 100.0) * 0.1;
+        int currentHealth = controlledPlayer.getHealth();
+        reward += (currentHealth / 100.0) * 0.05;
         
         // Power-up seeking reward (small bonus for moving toward power-ups)
         PowerUp nearestPowerUp = findNearestPowerUp(controlledPlayer.getPosition());
@@ -281,15 +308,212 @@ public class QLearningAgent {
             targetNetwork.copyWeightsFrom(qNetwork);
         }
     }
+
+    public void saveCheckpoint() {
+        try {
+            Files.createDirectories(CHECKPOINT_DIR);
+            Path tempFile = CHECKPOINT_DIR.resolve("latest.tmp");
+
+            try (DataOutputStream out = new DataOutputStream(Files.newOutputStream(tempFile))) {
+                out.writeUTF(CHECKPOINT_MAGIC);
+                out.writeInt(CHECKPOINT_VERSION);
+                out.writeInt(screenWidth);
+                out.writeInt(screenHeight);
+                out.writeInt(STATE_SIZE);
+                out.writeInt(ACTION_SIZE);
+                out.writeDouble(currentEpsilon);
+                out.writeDouble(epsilonBeforePause);
+                out.writeBoolean(learningEnabled);
+                out.writeInt(episodeCount);
+                out.writeDouble(averageReward);
+                qNetwork.writeTo(out);
+                targetNetwork.writeTo(out);
+            }
+
+            try {
+                Files.move(tempFile, LATEST_CHECKPOINT, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+            } catch (AtomicMoveNotSupportedException e) {
+                Files.move(tempFile, LATEST_CHECKPOINT, StandardCopyOption.REPLACE_EXISTING);
+            }
+        } catch (IOException e) {
+            System.err.println("Could not save AI checkpoint: " + e.getMessage());
+        }
+    }
+
+    public boolean loadLatestCheckpoint() {
+        if (!Files.exists(LATEST_CHECKPOINT)) {
+            return false;
+        }
+
+        try (DataInputStream in = new DataInputStream(Files.newInputStream(LATEST_CHECKPOINT))) {
+            String magic = in.readUTF();
+            int version = in.readInt();
+            int savedScreenWidth = in.readInt();
+            int savedScreenHeight = in.readInt();
+            int savedStateSize = in.readInt();
+            int savedActionSize = in.readInt();
+
+            if (!CHECKPOINT_MAGIC.equals(magic) || version != CHECKPOINT_VERSION ||
+                savedScreenWidth != screenWidth || savedScreenHeight != screenHeight ||
+                savedStateSize != STATE_SIZE || savedActionSize != ACTION_SIZE) {
+                throw new IOException("Checkpoint metadata does not match this agent");
+            }
+
+            currentEpsilon = in.readDouble();
+            epsilonBeforePause = in.readDouble();
+            learningEnabled = in.readBoolean();
+            episodeCount = in.readInt();
+            averageReward = in.readDouble();
+            qNetwork.readFrom(in);
+            targetNetwork.readFrom(in);
+            resetEpisodeState();
+            System.out.println("Loaded AI checkpoint from " + LATEST_CHECKPOINT.toAbsolutePath());
+            return true;
+        } catch (IOException e) {
+            System.err.println("Could not load AI checkpoint: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public void resetLearning() {
+        this.currentEpsilon = EPSILON;
+        this.epsilonBeforePause = EPSILON;
+        this.episodeCount = 0;
+        this.averageReward = 0;
+        this.totalReward = 0;
+        this.stepCount = 0;
+        this.pendingEventReward = 0;
+        this.lastState = null;
+        this.lastActionIndex = -1;
+        this.qNetwork = new NeuralNetwork(STATE_SIZE, ACTION_SIZE, LEARNING_RATE);
+        this.targetNetwork = new NeuralNetwork(STATE_SIZE, ACTION_SIZE, LEARNING_RATE);
+        this.targetNetwork.copyWeightsFrom(qNetwork);
+        this.experienceReplay = new ExperienceReplay(10000);
+        clearRewardLog();
+        saveCheckpoint();
+    }
+
+    public void copyPolicyFrom(QLearningAgent other) {
+        this.qNetwork.copyWeightsFrom(other.qNetwork);
+        this.targetNetwork.copyWeightsFrom(other.targetNetwork);
+        this.currentEpsilon = other.currentEpsilon;
+        this.epsilonBeforePause = other.epsilonBeforePause;
+        this.learningEnabled = other.learningEnabled;
+        resetEpisodeState();
+    }
+
+    public void mutatePolicy(double mutationRate, double mutationStrength, Random random) {
+        this.qNetwork.mutate(mutationRate, mutationStrength, random);
+        this.targetNetwork.copyWeightsFrom(qNetwork);
+        resetEpisodeState();
+    }
+
+    public List<Double> getRecentRewardHistory(int maxEntries) {
+        List<Double> rewards = new ArrayList<>();
+        if (!Files.exists(REWARD_LOG)) {
+            return rewards;
+        }
+
+        try {
+            List<String> lines = Files.readAllLines(REWARD_LOG);
+            int start = Math.max(1, lines.size() - maxEntries);
+            for (int i = start; i < lines.size(); i++) {
+                String[] parts = lines.get(i).split(",");
+                if (parts.length >= 2) {
+                    rewards.add(Double.parseDouble(parts[1]));
+                }
+            }
+        } catch (IOException | NumberFormatException e) {
+            System.err.println("Could not read AI reward history: " + e.getMessage());
+        }
+        return rewards;
+    }
+
+    private void appendRewardLog() {
+        try {
+            Files.createDirectories(REWARD_LOG.getParent());
+            boolean writeHeader = !Files.exists(REWARD_LOG);
+
+            try (BufferedWriter writer = Files.newBufferedWriter(REWARD_LOG, java.nio.file.StandardOpenOption.CREATE, java.nio.file.StandardOpenOption.APPEND)) {
+                if (writeHeader) {
+                    writer.write("episode,average_reward,epsilon");
+                    writer.newLine();
+                }
+                writer.write(episodeCount + "," + averageReward + "," + currentEpsilon);
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            System.err.println("Could not append AI reward log: " + e.getMessage());
+        }
+    }
+
+    private void clearRewardLog() {
+        try {
+            Files.deleteIfExists(REWARD_LOG);
+        } catch (IOException e) {
+            System.err.println("Could not clear AI reward log: " + e.getMessage());
+        }
+    }
+
+    public void recordAsteroidDestroyed() {
+        pendingEventReward += 30.0;
+    }
+
+    public void recordPowerUpCollected() {
+        pendingEventReward += 8.0;
+    }
+
+    public void recordDamageTaken(int damage) {
+        pendingEventReward -= Math.max(5.0, damage);
+    }
+
+    public void recordShotFired() {
+        pendingEventReward -= 0.02;
+    }
+
+    public void onEpisodeEnd() {
+        if (lastState == null || lastActionIndex < 0) {
+            resetEpisode();
+            return;
+        }
+
+        double[] terminalState = getStateVector();
+        double reward = consumePendingReward() - 100.0;
+        experienceReplay.addExperience(lastState, lastActionIndex, reward, terminalState, true);
+        trainNetwork();
+        totalReward += reward;
+        stepCount++;
+        episodeCount++;
+        finishEpisode();
+    }
+
+    private double consumePendingReward() {
+        double reward = pendingEventReward;
+        pendingEventReward = 0;
+        return reward;
+    }
     
-    private void resetEpisode() {
+    private void finishEpisode() {
         if (stepCount > 0) {
             averageReward = totalReward / stepCount;
         }
+        appendRewardLog();
+        if (episodeCount % CHECKPOINT_INTERVAL_EPISODES == 0) {
+            saveCheckpoint();
+        }
+        resetEpisodeState();
+    }
+
+    private void resetEpisode() {
+        resetEpisodeState();
+    }
+
+    private void resetEpisodeState() {
         lastState = null;
-        lastAction = null;
+        lastActionIndex = -1;
         stepCount = 0;
         totalReward = 0;
+        pendingEventReward = 0;
     }
     
     private Asteroid findNearestAsteroid(Vector2 position) {
@@ -339,8 +563,14 @@ public class QLearningAgent {
     public boolean isLearningEnabled() { return learningEnabled; }
     
     public void setLearningEnabled(boolean enabled) { 
+        if (this.learningEnabled == enabled) {
+            return;
+        }
         this.learningEnabled = enabled;
-        if (!enabled) {
+        if (enabled) {
+            currentEpsilon = Math.max(epsilonBeforePause, MIN_EPSILON);
+        } else {
+            epsilonBeforePause = currentEpsilon;
             currentEpsilon = 0; // No exploration when learning disabled
         }
     }

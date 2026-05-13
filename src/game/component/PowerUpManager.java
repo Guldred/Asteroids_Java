@@ -23,12 +23,16 @@ public class PowerUpManager {
         lastSpawnTime = System.currentTimeMillis();
     }
     
-    public void update() {
+    public void update(float deltaTime) {
         // Check for natural spawns
         long currentTime = System.currentTimeMillis();
         if (currentTime - lastSpawnTime > SPAWN_INTERVAL) {
             spawnRandomPowerUp();
             lastSpawnTime = currentTime;
+        }
+
+        for (PowerUp powerUp : powerUps) {
+            powerUp.update(deltaTime);
         }
         
         // Remove expired or collected power-ups

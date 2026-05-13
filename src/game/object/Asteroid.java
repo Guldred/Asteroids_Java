@@ -59,7 +59,6 @@ public class Asteroid extends Updateable {
         // Lower overall asteroid max speed to keep gameplay fair
         this.MAX_SPEED = (float) (2.0 + Math.random() * 2.0); // 2.0 - 4.0 px/frame cap when bouncing
 
-        startUpdate();
     }
     
     private BufferedImage createFallbackAsteroidImage(int size) {

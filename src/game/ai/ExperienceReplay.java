@@ -25,9 +25,9 @@ public class ExperienceReplay {
         }
     }
     
-    public void addExperience(double[] state, double[] action, double reward, 
+    public void addExperience(double[] state, int actionIndex, double reward,
                              double[] nextState, boolean done) {
-        Experience exp = new Experience(state, action, reward, nextState, done);
+        Experience exp = new Experience(state, actionIndex, reward, nextState, done);
         
         buffer.set(currentIndex, exp);
         currentIndex = (currentIndex + 1) % maxSize;
@@ -85,15 +85,15 @@ public class ExperienceReplay {
     // Inner class for storing experiences
     public static class Experience {
         public final double[] state;
-        public final double[] action;
+        public final int actionIndex;
         public final double reward;
         public final double[] nextState;
         public final boolean done;
         
-        public Experience(double[] state, double[] action, double reward, 
+        public Experience(double[] state, int actionIndex, double reward,
                          double[] nextState, boolean done) {
             this.state = state != null ? state.clone() : new double[0];
-            this.action = action != null ? action.clone() : new double[0];
+            this.actionIndex = actionIndex;
             this.reward = reward;
             this.nextState = nextState != null ? nextState.clone() : new double[0];
             this.done = done;

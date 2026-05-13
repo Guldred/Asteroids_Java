@@ -153,9 +153,9 @@ public class GameCore extends JComponent{
         height = getHeight();
 
         initGFX();
+        initProjectiles();
         initGameObjects();
         initInput();
-        initProjectiles();
         initStars(); // Keep for fallback
         
         // Initialize background manager
@@ -172,11 +172,14 @@ public class GameCore extends JComponent{
         }
 
         thread = new Thread(() -> {
-            long frameStartTime = 0;
+            long previousFrameTime = System.nanoTime();
             long frameRenderTime = 0;
             while (start) {
-                frameStartTime = System.nanoTime();
-                update();
+                long frameStartTime = System.nanoTime();
+                float deltaTime = Math.min(3.0f, (frameStartTime - previousFrameTime) / 10000000f);
+                previousFrameTime = frameStartTime;
+
+                update(deltaTime);
                 draw();
                 frameRenderTime = System.nanoTime() - frameStartTime;
                 if (frameRenderTime < TARGET_TIME) {
@@ -208,7 +211,7 @@ public class GameCore extends JComponent{
         }
     }
     
-    private void update() {
+    private void update(float deltaTime) {
         switch (currentState) {
             case MENU:
                 // Menu logic will be handled by input events
@@ -216,7 +219,7 @@ public class GameCore extends JComponent{
                 break;
                 
             case PLAYING:
-                updateGameplay();
+                updateGameplay(deltaTime);
                 break;
                 
             case PAUSED:
@@ -246,9 +249,14 @@ public class GameCore extends JComponent{
         backgroundManager.update(playerVelocityX, playerVelocityY);
     }
     
-    private void updateGameplay() {
+    private void updateGameplay(float deltaTime) {
+        // Update AI environment with current game state before choosing an action.
+        player.setGameEnvironment(asteroids, powerUpManager.getPowerUps(), projectiles);
+        player.update(deltaTime);
+
         // Check if player is dead
         if (!player.isAlive()) {
+            player.onEpisodeEnd();
             currentState = GameState.GAME_OVER;
             gameOverTime = System.currentTimeMillis();
             soundManager.playSound("gameover");
@@ -261,9 +269,6 @@ public class GameCore extends JComponent{
             return;
         }
         
-        // Update AI environment with current game state
-        player.setGameEnvironment(asteroids, powerUpManager.getPowerUps(), projectiles);
-        
         // Handle AI firing
         if (player.wantsToFire()) {
             long now = System.currentTimeMillis();
@@ -275,16 +280,18 @@ public class GameCore extends JComponent{
         }
         
         // Update asteroid manager
-        asteroidManager.update();
+        asteroidManager.update(deltaTime);
         
         // Update asteroids list from manager
         asteroids = asteroidManager.getAsteroids();
         
         // Update power-ups
-        powerUpManager.update();
+        powerUpManager.update(deltaTime);
         
         // Update particle system
         particleSystem.update();
+        
+        updateProjectiles(deltaTime);
         
         // Update background with player velocity (limit speed to prevent excessive scrolling)
         float maxBackgroundSpeed = 2.0f;
@@ -314,6 +321,7 @@ public class GameCore extends JComponent{
                 if (!wasInvulnerable) {
                     player.takeDamage(20); // Take damage from asteroid collision
                     tookDamage = true;
+                    player.getAIAgent().recordDamageTaken(20);
                 }
                 break; // Only take damage from one asteroid per frame
             }
@@ -829,38 +837,27 @@ public class GameCore extends JComponent{
 
     private void initProjectiles() {
         projectiles = new ArrayList<>();
+    }
 
-        new Thread(() -> {
-            long frameStartTime = 0;
-            long frameRenderTime = 0;
-            while (start) {
-                frameStartTime = System.nanoTime();
-
-                //use update on all projectiles
-
-                for (int i = 0; i < projectiles.size(); i++) {
-                    if (projectiles.get(i) != null) {
-                        //projectiles.get(i).Update();
-                        if (projectiles.get(i).outOfBounds(width, height)) {
-                            projectiles.get(i).stop();
-                            projectiles.remove(projectiles.get(i));
-                        }
-                    } else {
-                        projectiles.remove(projectiles.get(i));
-                    }
-                }
-
-                frameRenderTime = System.nanoTime() - frameStartTime;
-                if (frameRenderTime < TARGET_TIME) {
-                    sleep((TARGET_TIME - frameRenderTime) / 1000000);
-                }
-
+    private void updateProjectiles(float deltaTime) {
+        for (int i = projectiles.size() - 1; i >= 0; i--) {
+            Projectile projectile = projectiles.get(i);
+            if (projectile == null) {
+                projectiles.remove(i);
+                continue;
             }
-        }).start();
+
+            projectile.update(deltaTime);
+            if (projectile.outOfBounds(width, height)) {
+                projectile.stop();
+                projectiles.remove(i);
+            }
+        }
     }
 
     public void playerShoot(int weapon) {
         projectiles.add(player.shoot(weapon));
+        player.getAIAgent().recordShotFired();
     }
     
     private long currentFireInterval() {
@@ -940,6 +937,7 @@ public class GameCore extends JComponent{
         
         // Handle asteroid splitting and removal
         asteroidManager.removeAsteroid(asteroid);
+        player.getAIAgent().recordAsteroidDestroyed();
     }
     
     private void checkPlayerPowerUpCollisions() {
@@ -970,6 +968,7 @@ public class GameCore extends JComponent{
                 
                 // Add score
                 score += 50;
+                player.getAIAgent().recordPowerUpCollected();
             }
         }
     }

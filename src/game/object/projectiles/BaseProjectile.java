@@ -16,7 +16,6 @@ public class BaseProjectile extends Updateable implements Projectile {
     protected Color color;
     protected float size;
     protected float speed;
-    protected boolean start = true;
 
 
 
@@ -75,10 +74,13 @@ public class BaseProjectile extends Updateable implements Projectile {
 
     @Override
     public void stop() {
-        start = false;
+        this.start = false;
     }
 
     protected void UpdatePosition(float deltaTime) {
+        if (!start) {
+            return;
+        }
         frameVelocity = new Vector2(velocity.x * deltaTime, velocity.y * deltaTime);
         position.add(frameVelocity);
     }
