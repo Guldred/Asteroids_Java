@@ -10,6 +10,7 @@
 - typecheck: `javac --release 17 -d out $(find src -name '*.java')` (verified: compiles, `out/` is gitignored)
 - lint: none
 - build: none (the IDE builds and runs `game.main.Main`)
+- lock: `sh scripts/sdd/lock.sh`
 
 ## Folders
 - source: `src/` (packages `game.component`, `game.object`, `game.object.projectiles`, `game.main`; assets in `src/game/resource/`)
