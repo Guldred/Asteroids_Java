@@ -8,9 +8,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8cb6bc53-2f9d-4061-b2bf-a3add0362599" name="Changes" comment="Added features">
-      <change afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scripts/sdd/mutate.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.claude/settings.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.github/CODEOWNERS" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.github/workflows/sdd-gate.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scripts/sdd/gate.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/sdd/stack.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/sdd/stack.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -84,6 +85,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "WebServerToolWindowFactoryState": "false",
     "codeWithMe.voiceChat.enabledByDefault": "false",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
@@ -212,7 +214,7 @@
       <workItem from="1753799261469" duration="2862000" />
       <workItem from="1753802144498" duration="201000" />
       <workItem from="1753802361268" duration="4100000" />
-      <workItem from="1794220993347" duration="696000" />
+      <workItem from="1794220993347" duration="2098000" />
     </task>
     <task id="LOCAL-00001" summary="Continue Dev with local Qwen Coder 3">
       <option name="closed" value="true" />

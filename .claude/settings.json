@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "ask": [
+      "Edit(/docs/sdd/**/*.sha256)",
+      "Edit(/scripts/sdd/**)",
+      "Edit(/.github/workflows/sdd-gate.yml)",
+      "Edit(/.github/CODEOWNERS)",
+      "Edit(/pom.xml)"
+    ]
+  }
+}

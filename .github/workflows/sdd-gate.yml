@@ -1,0 +1,27 @@
+# SDD gate: runs scripts/sdd/gate.sh on every pull request (typecheck, tests, test lock,
+# mutation testing on the source files the pull request changes).
+name: SDD gate
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # the gate diffs against the target branch
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: Run the SDD gate
+        env:
+          BASE: origin/${{ github.base_ref }}
+        run: sh scripts/sdd/gate.sh "$BASE"
