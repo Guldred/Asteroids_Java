@@ -33,3 +33,6 @@ bin/
 _bmad/
 _bmad-output/
 .bmad-help-setup-modules.toml
+
+### Maven (SDD workshop: test and mutation reports) ###
+target/
