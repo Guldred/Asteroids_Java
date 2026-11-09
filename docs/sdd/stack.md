@@ -29,5 +29,5 @@
 - scripts: POSIX shell (`.sh`)
 
 ## Notes
-- The repository has no tests yet (baseline lock: 0 files). Step 4 added the minimal Maven `pom.xml` (JUnit 5 + PIT) after asking. Until tests exist, `mutate` on any source file fails with "there are no tests"; files without mutants (or only non-source files) pass.
+- The repository has no tests yet (baseline lock: 0 files). Step 4 added the minimal Maven `pom.xml` (JUnit 5 + PIT) after asking. Until tests exist, `mutate` on any source file fails with "there are no tests" (PIT skips the run before it counts mutants, so this includes files without mutants); once tests exist, files without mutants (for example an interface) pass, and so do runs with only non-source files.
 - Assets are loaded via relative `File` paths (`SoundManager`, `BackgroundManager`), so anything that runs the game needs the repository root as working directory; `Vector2` (pure math, no dependencies) is the natural first test target; `CollisionDetector` uses `java.awt.geom` and the game objects.

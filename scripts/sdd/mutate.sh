@@ -87,6 +87,12 @@ if [ "$status" -ne 0 ]; then
 fi
 
 if [ ! -f "$report" ]; then
+  # failWhenNoMutations=false: PIT ends successfully but writes no report when the given
+  # classes have no mutants (an interface, a constants class). That run passes.
+  if grep -q -e "No mutations found" -e "Created 0 mutation test units" "$log"; then
+    echo "mutate: no mutants in the given files. Score: n/a (passes)"
+    exit 0
+  fi
   if grep -q "Project has either no tests or no production code" "$log"; then
     echo "mutate FAILED: there are no tests, so no mutant can be killed (PIT skipped the run)"
     exit 1
