@@ -1,0 +1,9 @@
+# SDD protection: a change to these paths needs a review by a code owner.
+# Takes effect only with branch protection "Require review from Code Owners" on the target branch.
+/test/                          @Guldred
+/docs/sdd/                      @Guldred
+/scripts/sdd/                   @Guldred
+/.github/workflows/sdd-gate.yml @Guldred
+/pom.xml                        @Guldred
+/.github/CODEOWNERS             @Guldred
+/.claude/settings.json          @Guldred

@@ -27,3 +27,12 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+### BMAD (SDD workshop) ###
+.claude/skills/bmad*/
+.claude/skills/bmod*/
+_bmad/
+_bmad-output/
+.bmad-help-setup-modules.toml
+
+### Maven (SDD workshop: test and mutation reports) ###
+target/
